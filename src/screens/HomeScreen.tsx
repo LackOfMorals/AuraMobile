@@ -1,72 +1,145 @@
-import { asc, isNull } from 'drizzle-orm';
-import { useCallback, useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useMemo, useState } from 'react';
+import { FlatList, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { db, schema } from '../db';
-import { cloudLabel, memoryAndStorage, relativeTime } from '../lib/format';
-import { statusView } from '../lib/status';
+import { InstanceRecord, listInstances, tenantNames } from '../db/queries';
+import { Filters } from '../lib/filters';
+import { cloudLabel, plural } from '../lib/format';
+import { summarize, Tag } from '../lib/home';
+import type { RootStackParamList, TabParamList } from '../navigation/types';
+import { useDbQuery } from '../state/useDbQuery';
+import { useFilters } from '../state/filtersStore';
 import { useSession } from '../state/session';
 import { useColors } from '../theme/colors';
 import { Button } from '../ui';
+import { InstanceCard } from '../ui/InstanceCard';
+import { EmptyState, Skeleton, TagButton } from '../ui/parts';
 
-type Row = typeof schema.instance.$inferSelect;
+type Nav = BottomTabNavigationProp<TabParamList, 'Home'> & NativeStackNavigationProp<RootStackParamList>;
 
-/** Placeholder for phase 6: proves the synced data is on the device. Replaced by the gallery. */
+function TagGroup({ label, tags, onPick }: { label: string; tags: Tag[]; onPick: (value: string) => void }) {
+  const c = useColors();
+  if (tags.length === 0) {
+    return null;
+  }
+  return (
+    <View style={styles.tagGroup}>
+      <Text style={[styles.legend, { color: c.muted }]}>{label}</Text>
+      <View style={styles.tagRow}>
+        {tags.map(t => (
+          <TagButton key={t.value} label={`${t.label} · ${t.count}`} onPress={() => onPick(t.value)} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function Row({ title, items, onSeeAll, onOpen }: { title: string; items: InstanceRecord[]; onSeeAll: () => void; onOpen: (id: string) => void }) {
+  const c = useColors();
+  if (items.length === 0) {
+    return null;
+  }
+  return (
+    <View style={styles.rowBlock}>
+      <View style={styles.rowHead}>
+        <Text accessibilityRole="header" style={[styles.rowTitle, { color: c.text }]}>{title}</Text>
+        <Button label="See all" variant="secondary" onPress={onSeeAll} />
+      </View>
+      <FlatList
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.cards}
+        data={items}
+        keyExtractor={i => i.auraId}
+        renderItem={({ item }) => <InstanceCard instance={item} layout="tile" onPress={() => onOpen(item.auraId)} />}
+      />
+    </View>
+  );
+}
+
+/** Hero with search and tags, then rows of cards, like the web console's home page. */
 export function HomeScreen() {
   const c = useColors();
-  const { mode, syncing, lastResult, syncNow, disconnect } = useSession();
-  const [rows, setRows] = useState<Row[]>([]);
-  const [syncedAt, setSyncedAt] = useState<string | null>(null);
+  const nav = useNavigation<Nav>();
+  const replaceFilters = useFilters(s => s.replace);
+  const { syncing, syncNow } = useSession();
+  const instances = useDbQuery(listInstances);
+  const names = useDbQuery(tenantNames);
+  const [q, setQ] = useState('');
 
-  const load = useCallback(async () => {
-    setRows(await db.select().from(schema.instance).where(isNull(schema.instance.deletedInAuraAt)).orderBy(asc(schema.instance.name)));
-    setSyncedAt((await db.select().from(schema.account))[0]?.lastSyncAt ?? null);
-  }, []);
+  const summary = useMemo(() => (instances && names ? summarize(instances, names, cloudLabel) : undefined), [instances, names]);
 
-  useEffect(() => {
-    load();
-  }, [load, lastResult]);
+  const browse = (filters: Partial<Filters>) => {
+    replaceFilters(filters);
+    nav.navigate('Instances');
+  };
+  const open = (auraId: string) => nav.navigate('Detail', { auraId });
 
   return (
-    <SafeAreaView style={[styles.screen, { backgroundColor: c.bg }]}>
-      <FlatList
-        contentContainerStyle={styles.content}
-        data={rows}
-        keyExtractor={r => r.auraId}
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <Text style={[styles.title, { color: c.text }]}>Instances{mode === 'demo' ? ' (demo)' : ''}</Text>
-            <Text style={{ color: c.muted }}>{syncedAt ? `Synced ${relativeTime(syncedAt)}` : 'Not synced yet'}</Text>
-            <Button label={syncing ? 'Syncing…' : 'Sync now'} disabled={syncing} onPress={syncNow} variant="secondary" />
+    <SafeAreaView edges={['top']} style={[styles.screen, { backgroundColor: c.bg }]}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <Text style={[styles.eyebrow, { color: c.primary }]}>Your Aura account</Text>
+        <Text accessibilityRole="header" style={[styles.title, { color: c.text }]}>Find an instance</Text>
+        <Text style={{ color: c.muted }}>
+          {summary ? `${plural(summary.total, 'instance')} across ${plural(summary.tenants.length, 'tenant')}` : 'Reading the stored copy of your account…'}
+        </Text>
+        <TextInput
+          accessibilityLabel="Search instances by name"
+          autoCapitalize="none"
+          autoCorrect={false}
+          onChangeText={setQ}
+          onSubmitEditing={() => browse({ q: q.trim() })}
+          placeholder="Search by name"
+          placeholderTextColor={c.muted}
+          returnKeyType="search"
+          style={[styles.search, { color: c.text, borderColor: c.border, backgroundColor: c.card }]}
+          value={q}
+        />
+        {summary && (
+          <>
+            <TagGroup label="Tenant" tags={summary.tenants} onPick={v => browse({ tenants: [v] })} />
+            <TagGroup label="Cloud" tags={summary.clouds} onPick={v => browse({ clouds: [v] })} />
+            <TagGroup label="Tier" tags={summary.tiers} onPick={v => browse({ tiers: [v] })} />
+          </>
+        )}
+        {!summary && (
+          <View style={styles.cards}>
+            {[0, 1, 2].map(i => (
+              <Skeleton key={i} style={styles.skeleton} />
+            ))}
           </View>
-        }
-        ListFooterComponent={
-          <View style={styles.footer}>
-            <Button label="Disconnect and clear data" variant="danger" onPress={disconnect} />
-          </View>
-        }
-        renderItem={({ item }) => {
-          const status = statusView(item.status);
-          return (
-            <View style={[styles.card, { backgroundColor: c.card, borderColor: c.border }]}>
-              <Text style={[styles.name, { color: c.text }]}>{item.name}</Text>
-              <Text style={{ color: c.muted }}>
-                {status.label} · {cloudLabel(item.cloudProvider)} · {memoryAndStorage(item.memory, item.storage)}
-              </Text>
-            </View>
-          );
-        }}
-      />
+        )}
+        {summary && (
+          <>
+            <Row title="Needs attention" items={summary.attention} onSeeAll={() => browse({ statuses: ['FAILED', 'IN_PROGRESS', 'STOPPED'] })} onOpen={open} />
+            <Row title="Running" items={summary.running} onSeeAll={() => browse({ statuses: ['READY'] })} onOpen={open} />
+          </>
+        )}
+        {summary?.total === 0 && (
+          <EmptyState title="No instances yet">
+            <Text style={{ color: c.muted }}>Instances in your Aura account appear here after a sync. If you have none in Aura, there is nothing to show.</Text>
+            <Button label={syncing ? 'Syncing…' : 'Sync now'} disabled={syncing} onPress={syncNow} />
+          </EmptyState>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { padding: 16, gap: 12 },
-  header: { gap: 8, marginBottom: 4 },
-  title: { fontSize: 24, fontWeight: '700' },
-  card: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 4 },
-  name: { fontSize: 16, fontWeight: '600' },
-  footer: { marginTop: 16 },
+  content: { padding: 16, gap: 14 },
+  eyebrow: { fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6 },
+  title: { fontSize: 32, fontWeight: '800' },
+  search: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 16 },
+  tagGroup: { gap: 6 },
+  legend: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  rowBlock: { gap: 8, marginTop: 6 },
+  rowHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  rowTitle: { fontSize: 20, fontWeight: '700' },
+  cards: { flexDirection: 'row', gap: 12 },
+  skeleton: { width: 168, height: 190 },
 });

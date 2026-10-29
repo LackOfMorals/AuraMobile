@@ -1,6 +1,8 @@
 import { useColorScheme } from 'react-native';
 
 // Tokens from the web console's theme, kept so the two stay recognisably one product.
+type ToneColors = { fg: string; bg: string };
+
 const light = {
   bg: '#f4f7fa',
   card: '#ffffff',
@@ -10,6 +12,13 @@ const light = {
   onPrimary: '#ffffff',
   border: '#d5dee7',
   danger: '#b3261e',
+  tone: {
+    ok: { fg: '#1a7f37', bg: '#e3f4e8' },
+    info: { fg: '#0a6190', bg: '#dceaf4' },
+    neutral: { fg: '#53697d', bg: '#e6ecf1' },
+    danger: { fg: '#b3261e', bg: '#fbe4e2' },
+    warn: { fg: '#8a5a00', bg: '#fdf0d5' },
+  } as Record<'ok' | 'info' | 'neutral' | 'danger' | 'warn', ToneColors>,
 };
 
 const dark: typeof light = {
@@ -21,6 +30,13 @@ const dark: typeof light = {
   onPrimary: '#0b1520',
   border: '#27405a',
   danger: '#ff8a80',
+  tone: {
+    ok: { fg: '#7ddc98', bg: '#12301f' },
+    info: { fg: '#5db3f0', bg: '#11344d' },
+    neutral: { fg: '#9db1c4', bg: '#223547' },
+    danger: { fg: '#ff8a80', bg: '#3d1b19' },
+    warn: { fg: '#f2c562', bg: '#3b2e0e' },
+  },
 };
 
 export type Colors = typeof light;

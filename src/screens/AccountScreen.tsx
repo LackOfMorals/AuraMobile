@@ -1,0 +1,58 @@
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { db, schema } from '../db';
+import { lastSyncedAt } from '../db/queries';
+import { relativeTime } from '../lib/format';
+import { useSession } from '../state/session';
+import { useDbQuery } from '../state/useDbQuery';
+import { useColors } from '../theme/colors';
+import { Banner, Button } from '../ui';
+
+const account = async () => (await db.select().from(schema.account))[0];
+
+/** Connection details, sync, and disconnect. Credential replacement and sync history come in a later phase. */
+export function AccountScreen() {
+  const c = useColors();
+  const { mode, syncing, lastResult, syncNow, disconnect } = useSession();
+  const row = useDbQuery(account);
+  const synced = useDbQuery(lastSyncedAt);
+
+  function confirmDisconnect() {
+    Alert.alert('Disconnect and clear data?', 'This removes your Aura credentials and the stored copy of your account from this device. Nothing changes in Aura.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Disconnect', style: 'destructive', onPress: disconnect },
+    ]);
+  }
+
+  return (
+    <SafeAreaView edges={['top']} style={[styles.screen, { backgroundColor: c.bg }]}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <Text accessibilityRole="header" style={[styles.title, { color: c.text }]}>Aura account</Text>
+        <View style={[styles.card, { backgroundColor: c.card, borderColor: c.border }]}>
+          <Text style={{ color: c.muted }}>Mode</Text>
+          <Text style={[styles.value, { color: c.text }]}>{mode === 'demo' ? 'Demo (sample data, nothing sent to Aura)' : 'Connected to Aura'}</Text>
+          {row?.clientIdHint ? (
+            <>
+              <Text style={{ color: c.muted }}>Client ID</Text>
+              <Text style={[styles.value, { color: c.text }]}>{row.clientIdHint}</Text>
+            </>
+          ) : null}
+          <Text style={{ color: c.muted }}>Last synced</Text>
+          <Text style={[styles.value, { color: c.text }]}>{synced ? relativeTime(synced) : 'Never'}</Text>
+        </View>
+        {lastResult?.status === 'FAILED' && <Banner tone="danger">{lastResult.error ?? 'The last sync failed.'}</Banner>}
+        {lastResult?.status === 'SLOWED' && <Banner tone="info">Aura asked us to slow down, so the last sync took longer than usual.</Banner>}
+        <Button label={syncing ? 'Syncing…' : 'Sync now'} disabled={syncing} onPress={syncNow} />
+        <Button label="Disconnect and clear data" variant="danger" onPress={confirmDisconnect} />
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1 },
+  content: { padding: 16, gap: 14 },
+  title: { fontSize: 28, fontWeight: '800' },
+  card: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 4 },
+  value: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
+});

@@ -4,12 +4,15 @@ import { useEffect } from 'react';
 import { ActivityIndicator, StatusBar, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { FirstSyncScreen } from './src/screens/FirstSyncScreen';
-import { HomeScreen } from './src/screens/HomeScreen';
+import { DetailScreen } from './src/screens/DetailScreen';
+import { Tabs } from './src/navigation/Tabs';
+import type { RootStackParamList } from './src/navigation/types';
 import { SetupScreen } from './src/screens/SetupScreen';
 import { LockGate } from './src/security/LockGate';
 import { useSession } from './src/state/session';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
+const Gate = createNativeStackNavigator();
 
 function Routes() {
   const { ready, mode, synced, init } = useSession();
@@ -29,15 +32,16 @@ function Routes() {
   // The screen follows the session, so connecting or disconnecting moves the person without navigating by hand.
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {mode === null ? (
-          <Stack.Screen name="Setup" component={SetupScreen} />
-        ) : !synced ? (
-          <Stack.Screen name="FirstSync" component={FirstSyncScreen} />
-        ) : (
-          <Stack.Screen name="Home" component={HomeScreen} />
-        )}
-      </Stack.Navigator>
+      {mode !== null && synced ? (
+        <Stack.Navigator>
+          <Stack.Screen name="Main" component={Tabs} options={{ headerShown: false }} />
+          <Stack.Screen name="Detail" component={DetailScreen} options={{ title: 'Instance', headerBackTitle: 'Back' }} />
+        </Stack.Navigator>
+      ) : (
+        <Gate.Navigator screenOptions={{ headerShown: false }}>
+          {mode === null ? <Gate.Screen name="Setup" component={SetupScreen} /> : <Gate.Screen name="FirstSync" component={FirstSyncScreen} />}
+        </Gate.Navigator>
+      )}
     </NavigationContainer>
   );
 }
