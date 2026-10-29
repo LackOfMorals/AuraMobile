@@ -1,6 +1,6 @@
 // Copyright (c) "Neo4j"
 // Neo4j Sweden AB [http://neo4j.com]
-import { KNOWN_STATUSES, STATUS_GROUPS, actionsLocked, statusView } from "./status";
+import { KNOWN_STATUSES, STATUS_GROUPS, actionsLocked, statusGroup, statusView } from "./status";
 
 // The 13 statuses the Aura API reports. If Aura adds or renames one, add it here and to status.ts.
 const specStatuses = ["running", "paused", "suspended", "creating", "updating", "pausing", "resuming", "suspending", "loading", "restoring", "overwriting", "destroying", "loading failed"];
@@ -43,5 +43,23 @@ describe("actionsLocked", () => {
   });
   it("lists every group once", () => {
     expect(STATUS_GROUPS.map((g) => g.key).sort()).toEqual(["FAILED", "IN_PROGRESS", "READY", "STOPPED"]);
+  });
+});
+
+describe("statusGroup", () => {
+  it.each([
+    ["running", "READY"],
+    ["paused", "STOPPED"],
+    ["suspended", "STOPPED"],
+    ["loading failed", "FAILED"],
+    ["creating", "IN_PROGRESS"],
+    ["destroying", "IN_PROGRESS"],
+  ])("groups %s as %s", (status, group) => {
+    expect(statusGroup(status)).toBe(group);
+  });
+
+  it("groups every known status, and treats an unknown one as in progress", () => {
+    for (const status of KNOWN_STATUSES) expect(["READY", "STOPPED", "IN_PROGRESS", "FAILED"]).toContain(statusGroup(status));
+    expect(statusGroup("hibernating")).toBe("IN_PROGRESS");
   });
 });

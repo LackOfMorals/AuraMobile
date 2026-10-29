@@ -15,3 +15,19 @@ export function getThemePreference(): ThemePreference {
 export function setThemePreference(theme: ThemePreference): void {
   store.set('theme', theme);
 }
+
+export type Mode = 'demo' | 'live';
+
+/** Which data source the app uses. Absent until the person connects or tries the demo. */
+export function getMode(): Mode | null {
+  const value = store.getString('mode');
+  return value === 'demo' || value === 'live' ? value : null;
+}
+
+export function setMode(mode: Mode | null): void {
+  if (mode === null) {
+    store.remove('mode');
+  } else {
+    store.set('mode', mode);
+  }
+}

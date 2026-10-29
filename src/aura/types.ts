@@ -100,8 +100,17 @@ export interface CreatedInstance {
   password: string;
 }
 
+export interface ClientStats {
+  requests: number;
+  retries: number;
+  rateLimited: number;
+}
+
 /** What the rest of the app needs from Aura. The real client and the demo-mode mock both provide it. */
 export interface AuraApi {
+  /** Present on the real client, so a sync can report how many requests it made. */
+  readonly stats?: ClientStats;
+  resetStats?(): void;
   checkCredentials(): Promise<void>;
   listTenants(): Promise<ProjectSummary[]>;
   getTenant(tenantId: string): Promise<ProjectDetail>;

@@ -1,7 +1,7 @@
 // Copyright (c) "Neo4j"
 // Neo4j Sweden AB [http://neo4j.com]
 import type {
-  AuraApi, AuraCredentials, CreatedInstance, InstanceCreate, InstanceDetail, InstanceSummary, InstanceUpdate, ProjectDetail, ProjectSummary,
+  AuraApi, ClientStats, AuraCredentials, CreatedInstance, InstanceCreate, InstanceDetail, InstanceSummary, InstanceUpdate, ProjectDetail, ProjectSummary,
 } from "./types";
 
 export interface Problem {
@@ -51,12 +51,6 @@ export interface AuraClientOptions {
   maxWaitMs?: number;
   /** Used when the token response has no expires_in. The spec does not give a lifetime. Default 3600 s. */
   fallbackTokenSeconds?: number;
-}
-
-export interface ClientStats {
-  requests: number;
-  retries: number;
-  rateLimited: number;
 }
 
 const REFRESH_MARGIN_MS = 60_000;

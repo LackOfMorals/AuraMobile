@@ -47,3 +47,15 @@ export const STATUS_GROUPS: { key: InstanceStatusGroup; label: string }[] = [
 export function actionsLocked(group: InstanceStatusGroup): boolean {
   return group === "IN_PROGRESS";
 }
+
+const GROUP_OF: Record<string, InstanceStatusGroup> = {
+  running: "READY",
+  paused: "STOPPED",
+  suspended: "STOPPED",
+  "loading failed": "FAILED",
+};
+
+/** A status this app does not know counts as in progress, so Edit, Pause and Delete stay locked until it is understood. */
+export function statusGroup(status: string): InstanceStatusGroup {
+  return GROUP_OF[status] ?? "IN_PROGRESS";
+}

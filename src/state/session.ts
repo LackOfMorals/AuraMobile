@@ -1,0 +1,131 @@
+import { create } from 'zustand';
+import { AuraAuthError, AuraClient, AuraUnreachableError } from '../aura/client';
+import { MockAura } from '../aura/mock';
+import type { AuraApi, AuraCredentials } from '../aura/types';
+import { db, schema } from '../db';
+import { createSyncStore } from '../db/syncRepository';
+import { maskClientId } from '../lib/account';
+import { clearCredentials, hasCredentials, loadCredentials, saveCredentials } from '../security/credentials';
+import { runSync, SyncResult } from '../services/sync';
+import { getMode, Mode, setMode } from '../storage/settings';
+
+const ACCOUNT_ID = 'default';
+const BASE_URL = 'https://api.neo4j.io';
+
+let aura: AuraApi | undefined;
+
+/** The data source for the current mode: the real client, or the in-memory demo. */
+export function getAura(mode: Mode): AuraApi {
+  aura ??= mode === 'demo' ? new MockAura() : new AuraClient({ baseUrl: BASE_URL, credentials: loadCredentials });
+  return aura;
+}
+
+async function writeAccount(label: string, clientIdHint: string | null) {
+  const now = new Date().toISOString();
+  await db
+    .insert(schema.account)
+    .values({ id: ACCOUNT_ID, label, clientIdHint, status: 'CONNECTED', connectedAt: now })
+    .onConflictDoUpdate({
+      target: schema.account.id,
+      set: { label, clientIdHint, status: 'CONNECTED', connectedAt: now, lastSyncAt: null },
+    });
+}
+
+/** What we tell the person when connecting fails. Never includes the credentials. */
+export function describeConnectError(err: unknown): string {
+  if (err instanceof AuraAuthError) {
+    return 'Aura rejected that client id and secret. Check them in the Aura console.';
+  }
+  if (err instanceof AuraUnreachableError) {
+    return 'Could not reach Aura. Check your connection and try again.';
+  }
+  return 'Could not connect to Aura.';
+}
+
+type SessionState = {
+  /** False until the stored mode and account have been read. */
+  ready: boolean;
+  mode: Mode | null;
+  /** Whether a sync has finished at least once, so there is something to show. */
+  synced: boolean;
+  syncing: boolean;
+  lastResult: SyncResult | null;
+  init: () => Promise<void>;
+  connect: (credentials: AuraCredentials) => Promise<string | null>;
+  startDemo: () => Promise<void>;
+  syncNow: () => Promise<SyncResult | null>;
+  disconnect: () => Promise<void>;
+};
+
+export const useSession = create<SessionState>((set, get) => ({
+  ready: false,
+  mode: null,
+  synced: false,
+  syncing: false,
+  lastResult: null,
+
+  init: async () => {
+    let mode = getMode();
+    if (mode === 'live' && !(await hasCredentials())) {
+      mode = null;
+    }
+    const rows = await db.select().from(schema.account);
+    set({ ready: true, mode, synced: mode !== null && Boolean(rows[0]?.lastSyncAt) });
+  },
+
+  /** Returns an error message, or null once the credentials are checked and stored. */
+  connect: async credentials => {
+    try {
+      await new AuraClient({ baseUrl: BASE_URL, credentials: async () => credentials }).checkCredentials();
+      await saveCredentials(credentials);
+      await writeAccount('Aura account', maskClientId(credentials.clientId));
+      aura = undefined;
+      setMode('live');
+      set({ mode: 'live', synced: false, lastResult: null });
+      return null;
+    } catch (err) {
+      return describeConnectError(err);
+    }
+  },
+
+  startDemo: async () => {
+    await writeAccount('Demo account', null);
+    aura = undefined;
+    setMode('demo');
+    set({ mode: 'demo', synced: false, lastResult: null });
+  },
+
+  syncNow: async () => {
+    const { mode, syncing } = get();
+    if (mode === null || syncing) {
+      return null;
+    }
+    set({ syncing: true });
+    try {
+      const result = await runSync({ aura: getAura(mode), store: createSyncStore(db, ACCOUNT_ID) });
+      set({ lastResult: result, synced: get().synced || result.status !== 'FAILED' });
+      return result;
+    } finally {
+      set({ syncing: false });
+    }
+  },
+
+  /** Forgets the credentials and clears everything stored on the device. */
+  disconnect: async () => {
+    await clearCredentials();
+    for (const table of [
+      schema.operationStep,
+      schema.operation,
+      schema.syncRun,
+      schema.instance,
+      schema.instanceConfiguration,
+      schema.tenant,
+      schema.account,
+    ]) {
+      await db.delete(table);
+    }
+    aura = undefined;
+    setMode(null);
+    set({ mode: null, synced: false, lastResult: null });
+  },
+}));
