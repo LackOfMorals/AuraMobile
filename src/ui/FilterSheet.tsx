@@ -18,7 +18,7 @@ type Props = {
   resultCount: number;
 };
 
-function Option({ label, count, checked, onPress, radio }: { label: string; count?: number; checked: boolean; onPress: () => void; radio?: boolean }) {
+export function Option({ label, count, checked, onPress, radio }: { label: string; count?: number; checked: boolean; onPress: () => void; radio?: boolean }) {
   const c = useColors();
   return (
     <Pressable

@@ -1,12 +1,17 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Alert } from 'react-native';
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { getInstance, tenantNames } from '../db/queries';
 import { tierName } from '../lib/create';
 import { cloudLabel, formatDate, memoryAndStorage, relativeTime } from '../lib/format';
 import type { RootStackParamList } from '../navigation/types';
+import { UserError } from '../services/errors';
+import { operations, useChangesAllowed } from '../state/session';
 import { useDbQuery } from '../state/useDbQuery';
+import { actionsLocked } from '../lib/status';
+import { Banner, Button } from '../ui';
 import { useColors } from '../theme/colors';
 import { Icon } from '../ui/Icon';
 import { Poster } from '../ui/InstanceCard';
@@ -38,12 +43,13 @@ function Fact({ label, value }: { label: string; value: string | number | null |
   );
 }
 
-export function DetailScreen({ route }: NativeStackScreenProps<RootStackParamList, 'Detail'>) {
+export function DetailScreen({ route, navigation }: NativeStackScreenProps<RootStackParamList, 'Detail'>) {
   const c = useColors();
   const { auraId } = route.params;
   const query = useCallback(() => getInstance(auraId), [auraId]);
   const instance = useDbQuery(query);
   const names = useDbQuery(tenantNames);
+  const allowed = useChangesAllowed();
   const [copied, setCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -64,6 +70,15 @@ export function DetailScreen({ route }: NativeStackScreenProps<RootStackParamLis
   const i = instance;
   const removed = i.deletedInAuraAt !== null;
 
+  async function plan(kind: 'PAUSE' | 'RESUME') {
+    try {
+      const { operationId } = await operations().plan(kind, i.auraId);
+      navigation.navigate('Operation', { operationId });
+    } catch (e) {
+      Alert.alert('Cannot plan this change', e instanceof UserError ? e.message : 'Something went wrong.');
+    }
+  }
+
   function copyUrl() {
     Clipboard.setString(i.connectionUrl ?? '');
     setCopied(true);
@@ -76,6 +91,19 @@ export function DetailScreen({ route }: NativeStackScreenProps<RootStackParamLis
       <Poster name={i.name} cloud={i.cloudProvider} tier={i.tier} size={{ width: 160, height: 120 }} />
       <Text accessibilityRole="header" style={[styles.name, { color: c.text }]}>{i.name}</Text>
       {removed ? <StatusChip label="Removed from Aura" tone="neutral" /> : <StatusChip status={i.status} />}
+
+      {!removed && (
+        <View style={styles.actions}>
+          {i.status === 'paused' ? (
+            <Button label="Resume" disabled={!allowed || actionsLocked(i.statusGroup)} onPress={() => plan('RESUME')} />
+          ) : (
+            <Button label="Pause" variant="secondary" disabled={!allowed || actionsLocked(i.statusGroup) || i.status !== 'running'} onPress={() => plan('PAUSE')} />
+          )}
+          <Button label="Edit" variant="secondary" disabled={!allowed || actionsLocked(i.statusGroup) || i.status !== 'running'} onPress={() => navigation.navigate('Edit', { auraId: i.auraId })} />
+          {!allowed && <Banner tone="info">Changes are switched off for this account. Turn on "Allow changes" in the Account tab.</Banner>}
+          {allowed && actionsLocked(i.statusGroup) && <Banner tone="info">Aura is working on this instance. Wait for it to finish.</Banner>}
+        </View>
+      )}
 
       {i.connectionUrl && (
         <Card title="Connection">
@@ -122,6 +150,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { padding: 16, gap: 14 },
   name: { fontSize: 28, fontWeight: '800' },
+  actions: { gap: 10 },
   card: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 10 },
   cardTitle: { fontSize: 18, fontWeight: '700' },
   fact: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },

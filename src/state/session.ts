@@ -1,13 +1,17 @@
+import { eq } from 'drizzle-orm';
 import { create } from 'zustand';
 import { AuraAuthError, AuraClient, AuraUnreachableError } from '../aura/client';
 import { MockAura } from '../aura/mock';
 import type { AuraApi, AuraCredentials } from '../aura/types';
 import { db, schema } from '../db';
+import { createOperationStore } from '../db/operationRepository';
 import { createSyncStore } from '../db/syncRepository';
 import { maskClientId } from '../lib/account';
 import { clearCredentials, hasCredentials, loadCredentials, saveCredentials } from '../security/credentials';
+import { instanceVault } from '../security/instanceVault';
+import { OperationService } from '../services/operations/service';
 import { runSync, SyncResult } from '../services/sync';
-import { getMode, Mode, setMode } from '../storage/settings';
+import { getAllowChanges, getMode, Mode, setAllowChanges, setMode } from '../storage/settings';
 
 const ACCOUNT_ID = 'default';
 const BASE_URL = 'https://api.neo4j.io';
@@ -18,6 +22,20 @@ let aura: AuraApi | undefined;
 export function getAura(mode: Mode): AuraApi {
   aura ??= mode === 'demo' ? new MockAura() : new AuraClient({ baseUrl: BASE_URL, credentials: loadCredentials });
   return aura;
+}
+
+let operationService: OperationService | undefined;
+
+/** Plans, confirms and runs changes to instances. Built on first use, for whichever mode is current. */
+export function operations(): OperationService {
+  operationService ??= new OperationService({
+    store: createOperationStore(db),
+    vault: instanceVault,
+    client: () => getAura(useSession.getState().mode ?? 'demo'),
+    isConnected: async () => useSession.getState().mode !== null,
+    onFinished: () => useSession.getState().bump(),
+  });
+  return operationService;
 }
 
 async function writeAccount(label: string, clientIdHint: string | null) {
@@ -50,6 +68,12 @@ type SessionState = {
   synced: boolean;
   syncing: boolean;
   lastResult: SyncResult | null;
+  /** Goes up whenever stored data changed outside a sync (an operation finished), so screens read it again. */
+  dataVersion: number;
+  /** Whether the person has switched changes on for a live account. Demo mode is always allowed. */
+  allowChanges: boolean;
+  bump: () => void;
+  setAllowChanges: (allow: boolean) => void;
   init: () => Promise<void>;
   connect: (credentials: AuraCredentials) => Promise<string | null>;
   startDemo: () => Promise<void>;
@@ -63,6 +87,15 @@ export const useSession = create<SessionState>((set, get) => ({
   synced: false,
   syncing: false,
   lastResult: null,
+  dataVersion: 0,
+  allowChanges: getAllowChanges(),
+
+  bump: () => set(s => ({ dataVersion: s.dataVersion + 1 })),
+
+  setAllowChanges: allow => {
+    setAllowChanges(allow);
+    set({ allowChanges: allow });
+  },
 
   init: async () => {
     let mode = getMode();
@@ -71,6 +104,11 @@ export const useSession = create<SessionState>((set, get) => ({
     }
     const rows = await db.select().from(schema.account);
     set({ ready: true, mode, synced: mode !== null && Boolean(rows[0]?.lastSyncAt) });
+    if (mode !== null) {
+      // Picks up changes a restart interrupted, without ever sending one twice
+      await operations().recover().catch(() => undefined);
+      get().bump();
+    }
   },
 
   /** Returns an error message, or null once the credentials are checked and stored. */
@@ -80,6 +118,7 @@ export const useSession = create<SessionState>((set, get) => ({
       await saveCredentials(credentials);
       await writeAccount('Aura account', maskClientId(credentials.clientId));
       aura = undefined;
+      operationService = undefined;
       setMode('live');
       set({ mode: 'live', synced: false, lastResult: null });
       return null;
@@ -91,6 +130,7 @@ export const useSession = create<SessionState>((set, get) => ({
   startDemo: async () => {
     await writeAccount('Demo account', null);
     aura = undefined;
+    operationService = undefined;
     setMode('demo');
     set({ mode: 'demo', synced: false, lastResult: null });
   },
@@ -113,6 +153,10 @@ export const useSession = create<SessionState>((set, get) => ({
   /** Forgets the credentials and clears everything stored on the device. */
   disconnect: async () => {
     await clearCredentials();
+    // Passwords Aura showed once live only in the Keychain, so they go too
+    for (const row of await db.select().from(schema.instance).where(eq(schema.instance.hasStoredPassword, true))) {
+      await instanceVault.delete(row.auraId);
+    }
     for (const table of [
       schema.operationStep,
       schema.operation,
@@ -125,7 +169,12 @@ export const useSession = create<SessionState>((set, get) => ({
       await db.delete(table);
     }
     aura = undefined;
+    operationService = undefined;
+    setAllowChanges(false);
     setMode(null);
-    set({ mode: null, synced: false, lastResult: null });
+    set({ mode: null, synced: false, lastResult: null, allowChanges: false });
   },
 }));
+
+/** Live accounts are read-only until switched on; the demo is always writable. */
+export const useChangesAllowed = (): boolean => useSession(s => s.mode === 'demo' || (s.mode === 'live' && s.allowChanges));

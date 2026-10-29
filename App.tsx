@@ -5,6 +5,8 @@ import { ActivityIndicator, StatusBar, useColorScheme, View } from 'react-native
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { FirstSyncScreen } from './src/screens/FirstSyncScreen';
 import { DetailScreen } from './src/screens/DetailScreen';
+import { EditScreen } from './src/screens/EditScreen';
+import { OperationScreen } from './src/screens/OperationScreen';
 import { Tabs } from './src/navigation/Tabs';
 import type { RootStackParamList } from './src/navigation/types';
 import { SetupScreen } from './src/screens/SetupScreen';
@@ -36,6 +38,8 @@ function Routes() {
         <Stack.Navigator>
           <Stack.Screen name="Main" component={Tabs} options={{ headerShown: false }} />
           <Stack.Screen name="Detail" component={DetailScreen} options={{ title: 'Instance', headerBackTitle: 'Back' }} />
+          <Stack.Screen name="Edit" component={EditScreen} options={{ title: 'Edit instance', headerBackTitle: 'Back' }} />
+          <Stack.Screen name="Operation" component={OperationScreen} options={{ title: 'Change', headerBackTitle: 'Back' }} />
         </Stack.Navigator>
       ) : (
         <Gate.Navigator screenOptions={{ headerShown: false }}>

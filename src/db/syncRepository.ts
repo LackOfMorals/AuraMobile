@@ -5,13 +5,37 @@ import * as schema from './schema';
 
 type Db = typeof appDb;
 
-const chunks = <T>(items: T[], size: number): T[][] =>
+export const chunks = <T>(items: T[], size: number): T[][] =>
   Array.from({ length: Math.ceil(items.length / size) }, (_, i) => items.slice(i * size, (i + 1) * size));
 
 const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
 /** Takes the incoming value for a column on conflict. */
 const excluded = (column: { name: string }) => sql.raw(`excluded."${column.name}"`);
+
+/**
+ * Inserts or updates instances by auraId. Every column an incoming row carries is replaced. hasStoredPassword and
+ * passwordRevealCount are not in InstanceRow, so this never resets what only this app knows. Clears deletedInAuraAt.
+ */
+export async function upsertInstanceRows(db: Db, instances: InstanceRow[], syncedAt: string): Promise<void> {
+  if (instances.length === 0) {
+    return;
+  }
+  const replaced = Object.fromEntries(
+    [...Object.keys(instances[0]!), 'syncedAt']
+      .filter(key => key !== 'auraId')
+      .map(key => [key, excluded(schema.instance[key as keyof typeof schema.instance] as { name: string })]),
+  );
+  for (const group of chunks(instances, 20)) {
+    await db
+      .insert(schema.instance)
+      .values(group.map(i => ({ ...i, syncedAt, deletedInAuraAt: null })))
+      .onConflictDoUpdate({
+        target: schema.instance.auraId,
+        set: { ...replaced, deletedInAuraAt: null },
+      });
+  }
+}
 
 /** The SQLite implementation of what a sync writes. Rows are inserted in chunks, one statement each. */
 export function createSyncStore(db: Db, accountId: string): SyncStore {
@@ -68,27 +92,7 @@ export function createSyncStore(db: Db, accountId: string): SyncStore {
       await db.update(schema.tenant).set({ configsSyncedAt: syncedAt }).where(eq(schema.tenant.auraId, tenantId));
     },
 
-    async upsertInstances(instances: InstanceRow[], syncedAt) {
-      if (instances.length === 0) {
-        return;
-      }
-      // Every column an incoming row carries is replaced. hasStoredPassword and passwordRevealCount are not
-      // in InstanceRow, so a sync never resets what only this app knows.
-      const replaced = Object.fromEntries(
-        [...Object.keys(instances[0]!), 'syncedAt']
-          .filter(key => key !== 'auraId')
-          .map(key => [key, excluded(schema.instance[key as keyof typeof schema.instance] as { name: string })]),
-      );
-      for (const group of chunks(instances, 20)) {
-        await db
-          .insert(schema.instance)
-          .values(group.map(i => ({ ...i, syncedAt, deletedInAuraAt: null })))
-          .onConflictDoUpdate({
-            target: schema.instance.auraId,
-            set: { ...replaced, deletedInAuraAt: null },
-          });
-      }
-    },
+    upsertInstances: (instances: InstanceRow[], syncedAt) => upsertInstanceRows(db, instances, syncedAt),
 
     async markGone(listedIds, syncedAt) {
       const present = await db

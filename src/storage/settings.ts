@@ -31,3 +31,12 @@ export function setMode(mode: Mode | null): void {
     store.set('mode', mode);
   }
 }
+
+/** Live accounts start read-only: changes must be switched on deliberately. Demo mode ignores this. */
+export function getAllowChanges(): boolean {
+  return store.getBoolean('allowChanges') ?? false;
+}
+
+export function setAllowChanges(allow: boolean): void {
+  store.set('allowChanges', allow);
+}

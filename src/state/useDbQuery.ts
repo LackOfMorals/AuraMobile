@@ -8,6 +8,7 @@ import { useSession } from './session';
 export function useDbQuery<T>(query: () => Promise<T>): T | undefined {
   const [data, setData] = useState<T>();
   const syncedAt = useSession(s => s.lastResult);
+  const version = useSession(s => s.dataVersion);
 
   useEffect(() => {
     let current = true;
@@ -19,7 +20,7 @@ export function useDbQuery<T>(query: () => Promise<T>): T | undefined {
     return () => {
       current = false;
     };
-  }, [query, syncedAt]);
+  }, [query, syncedAt, version]);
 
   return data;
 }

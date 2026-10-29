@@ -1,4 +1,4 @@
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db, schema } from '../db';
 import { lastSyncedAt } from '../db/queries';
@@ -13,7 +13,7 @@ const account = async () => (await db.select().from(schema.account))[0];
 /** Connection details, sync, and disconnect. Credential replacement and sync history come in a later phase. */
 export function AccountScreen() {
   const c = useColors();
-  const { mode, syncing, lastResult, syncNow, disconnect } = useSession();
+  const { mode, syncing, lastResult, syncNow, disconnect, allowChanges, setAllowChanges } = useSession();
   const row = useDbQuery(account);
   const synced = useDbQuery(lastSyncedAt);
 
@@ -40,6 +40,17 @@ export function AccountScreen() {
           <Text style={{ color: c.muted }}>Last synced</Text>
           <Text style={[styles.value, { color: c.text }]}>{synced ? relativeTime(synced) : 'Never'}</Text>
         </View>
+        {mode === 'live' && (
+          <View style={[styles.card, styles.switchRow, { backgroundColor: c.card, borderColor: c.border }]}>
+            <View style={styles.switchText}>
+              <Text style={[styles.value, { color: c.text, marginBottom: 2 }]}>Allow changes</Text>
+              <Text style={{ color: c.muted }}>
+                Off keeps this account read-only: you can look but not pause, resume, edit, create or delete. Turn it on only when you mean to change something.
+              </Text>
+            </View>
+            <Switch accessibilityLabel="Allow changes to your Aura account" onValueChange={setAllowChanges} value={allowChanges} />
+          </View>
+        )}
         {lastResult?.status === 'FAILED' && <Banner tone="danger">{lastResult.error ?? 'The last sync failed.'}</Banner>}
         {lastResult?.status === 'SLOWED' && <Banner tone="info">Aura asked us to slow down, so the last sync took longer than usual.</Banner>}
         <Button label={syncing ? 'Syncing…' : 'Sync now'} disabled={syncing} onPress={syncNow} />
@@ -55,4 +66,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 28, fontWeight: '800' },
   card: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 4 },
   value: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
+  switchRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  switchText: { flex: 1 },
 });
