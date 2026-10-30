@@ -1,6 +1,7 @@
 export type RootStackParamList = {
   Main: undefined;
-  Detail: { auraId: string };
+  /** devOpenExport is for screenshot runs in Debug builds only: it opens the Save to Files warning. */
+  Detail: { auraId: string; devOpenExport?: boolean };
   Create: undefined;
   Licenses: undefined;
   Edit: { auraId: string };

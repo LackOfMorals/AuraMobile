@@ -1,7 +1,7 @@
+import { CREDENTIALS_SERVICE, INSTANCE_PASSWORD_PREFIX } from './keychainNames';
+
 /** The Keychain services that hold secrets: the Aura client secret, and one item for each stored instance password. */
-const PREFIX = 'io.github.lackofmorals.jax.';
-export const isSecretService = (service: string): boolean =>
-  service === `${PREFIX}aura-credentials` || service.startsWith(`${PREFIX}instance-password.`);
+export const isSecretService = (service: string): boolean => service === CREDENTIALS_SERVICE || service.startsWith(INSTANCE_PASSWORD_PREFIX);
 
 export interface FreshInstallDeps {
   isMarked(): boolean;

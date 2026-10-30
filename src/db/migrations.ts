@@ -98,6 +98,10 @@ export const MIGRATIONS: readonly string[] = [
     error TEXT
   );
   `,
+  // 2: audit count for Save to Files
+  `
+  ALTER TABLE instance ADD COLUMN password_export_count INTEGER NOT NULL DEFAULT 0;
+  `,
 ];
 
 /** The little a driver must offer, so migrations run the same on the device and in tests. */

@@ -1,8 +1,9 @@
 import { clearKeychainOnFreshInstall, isSecretService, type FreshInstallDeps } from "./freshInstall";
+import { APPLOCK_SERVICE, CREDENTIALS_SERVICE, INSTANCE_PASSWORD_PREFIX, instancePasswordService } from "./keychainNames";
 
-const SECRET = "io.github.lackofmorals.jax.aura-credentials";
-const PASSWORD = "io.github.lackofmorals.jax.instance-password.d0000001";
-const LOCK = "io.github.lackofmorals.jax.applock";
+const SECRET = CREDENTIALS_SERVICE;
+const PASSWORD = instancePasswordService("d0000001");
+const LOCK = APPLOCK_SERVICE;
 const OTHER_APP = "com.example.other.aura-credentials";
 
 function setup(over: { marked?: boolean; priorUse?: boolean; services?: string[]; failOn?: string } = {}) {
@@ -26,7 +27,7 @@ describe("isSecretService", () => {
     expect(isSecretService(PASSWORD)).toBe(true);
     expect(isSecretService(LOCK)).toBe(false);
     expect(isSecretService(OTHER_APP)).toBe(false);
-    expect(isSecretService("io.github.lackofmorals.jax.instance-password")).toBe(false);
+    expect(isSecretService(INSTANCE_PASSWORD_PREFIX.slice(0, -1))).toBe(false);
   });
 });
 

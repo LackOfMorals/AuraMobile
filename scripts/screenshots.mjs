@@ -81,10 +81,10 @@ async function ensureMetro() {
 }
 
 const derived = join(root, 'ios/build/screenshots');
-const appPath = join(derived, 'Build/Products/Debug-iphonesimulator/JaxMobile.app');
+const appPath = join(derived, 'Build/Products/Debug-iphonesimulator/AuraMobile.app');
 function build() {
   console.log('Building the Debug app for the simulator…');
-  run('xcodebuild', ['-workspace', 'ios/JaxMobile.xcworkspace', '-scheme', 'JaxMobile', '-configuration', 'Debug', '-sdk', 'iphonesimulator', '-derivedDataPath', derived, 'build', '-quiet'], { cwd: root, maxBuffer: 1 << 28 });
+  run('xcodebuild', ['-workspace', 'ios/AuraMobile.xcworkspace', '-scheme', 'AuraMobile', '-configuration', 'Debug', '-sdk', 'iphonesimulator', '-derivedDataPath', derived, 'build', '-quiet'], { cwd: root, maxBuffer: 1 << 28 });
 }
 
 const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
@@ -114,7 +114,7 @@ async function main() {
       const dir = join(runDir, variantName, key);
       mkdirSync(dir, { recursive: true });
       for (const screen of screens) {
-        simctl('launch', '--terminate-running-process', udid, config.bundleId, '-JaxSkipLock', '1', '-JaxDemo', '1', '-JaxScreen', screen);
+        simctl('launch', '--terminate-running-process', udid, config.bundleId, '-DevSkipLock', '1', '-DevDemo', '1', '-DevScreen', screen);
         await sleep((args.delay ? Number(args.delay) : config.settleSeconds) * 1000);
         const file = join(dir, `${screen}.png`);
         simctl('io', udid, 'screenshot', file);
@@ -138,7 +138,7 @@ function contactSheet(variantName) {
     const r = rows.find(x => x.device === d && x.screen === s);
     return r ? `<td class="${r.status}"><img src="${relative(join(runDir, variantName), r.file)}" loading="lazy"><div>${r.status}</div></td>` : '<td></td>';
   };
-  const html = `<!doctype html><meta charset="utf-8"><title>Jax screenshots: ${variantName}</title>
+  const html = `<!doctype html><meta charset="utf-8"><title>Jue screenshots: ${variantName}</title>
 <style>body{font:14px system-ui;margin:16px}table{border-collapse:collapse}td,th{padding:6px;vertical-align:top;text-align:center}img{height:520px;border:1px solid #888}
 .changed div{color:#b00;font-weight:700}.new div{color:#06c}.same div{color:#080}</style>
 <h1>${variantName}</h1><table><tr><th></th>${devices.map(d => `<th>${d}</th>`).join('')}</tr>

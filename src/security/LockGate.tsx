@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useRef } from 'react';
 import { AppState, Pressable, StyleSheet, useColorScheme, View } from 'react-native';
 import { Text } from '../ui/Text';
+import { APP_NAME } from '../appName';
 import { devArg } from '../dev/launchArgs';
 import { useLockStore } from '../state/lockStore';
 
@@ -8,7 +9,7 @@ const RELOCK_AFTER_MS = 30_000;
 
 const MESSAGES = {
   'no-screen-lock':
-    'Set a device passcode in Settings to use Jax. Your Aura credentials are protected by it.',
+    `Set a device passcode in Settings to use ${APP_NAME}. Your Aura credentials are protected by it.`,
   cancelled: 'Authentication was cancelled.',
   failed: 'Authentication failed. Try again.',
 } as const;
@@ -20,7 +21,7 @@ export function LockGate({ children }: { children: ReactNode }) {
   const leftAt = useRef<number | null>(null);
 
   // Development only (see devArg): lets a screenshot run start without Face ID
-  const skipLock = devArg('JaxSkipLock') !== undefined;
+  const skipLock = devArg('DevSkipLock') !== undefined;
 
   useEffect(() => {
     if (!skipLock) {
@@ -50,7 +51,7 @@ export function LockGate({ children }: { children: ReactNode }) {
 
   return (
     <View style={[styles.screen, dark ? styles.dark : styles.light]}>
-      <Text style={[styles.title, dark && styles.textDark]}>Jax</Text>
+      <Text style={[styles.title, dark && styles.textDark]}>{APP_NAME}</Text>
       {failure && (
         <Text style={[styles.message, dark && styles.textDark]}>
           {MESSAGES[failure]}

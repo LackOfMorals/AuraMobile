@@ -4,6 +4,7 @@ import { Alert, Linking, ScrollView, StyleSheet, Switch, View } from 'react-nati
 import { Text } from '../ui/Text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { version } from '../../package.json';
+import { APP_NAME } from '../appName';
 import { db, schema } from '../db';
 import { LABS_TERMS_URL, PRIVACY_URL, SUPPORT_URL } from '../legal/links';
 import type { RootStackParamList } from '../navigation/types';
@@ -68,9 +69,9 @@ export function AccountScreen() {
 
         <View style={[styles.card, { backgroundColor: c.card, borderColor: c.border }]}>
           <Text accessibilityRole="header" style={[styles.value, { color: c.text, marginBottom: 2 }]}>About</Text>
-          <Text style={{ color: c.text }}>Jax {version}</Text>
+          <Text style={{ color: c.text }}>{APP_NAME} {version}</Text>
           <Text style={{ color: c.muted, marginBottom: 8 }}>Allows you to manage your Neo4j Aura infrastructure</Text>
-          <Text style={{ color: c.muted, marginBottom: 8 }}>{'Jax falls under the same terms as Neo4j Labs projects: it is experimental, and provided without warranties, support or service commitments, and is not intended for production use.'}</Text>
+          <Text style={{ color: c.muted, marginBottom: 8 }}>{`${APP_NAME} falls under the same terms as Neo4j Labs projects: it is experimental, and provided without warranties, support or service commitments, and is not intended for production use.`}</Text>
           <Button label="Neo4j Labs terms" variant="secondary" onPress={() => Linking.openURL(LABS_TERMS_URL)} />
           <Button label="Privacy policy" variant="secondary" onPress={() => Linking.openURL(PRIVACY_URL)} />
           <Button label="Support and feedback" variant="secondary" onPress={() => Linking.openURL(SUPPORT_URL)} />

@@ -11,6 +11,7 @@ import { maskClientId } from '../lib/account';
 import { clearCredentials, hasCredentials, loadCredentials, saveCredentials } from '../security/credentials';
 import { clearKeychainOnFreshInstall } from '../security/freshInstall';
 import { keychainDeps } from '../security/freshInstallKeychain';
+import { fileExport } from '../native/fileExport';
 import { instanceVault } from '../security/instanceVault';
 import { OperationService } from '../services/operations/service';
 import { refreshInstance } from '../services/refreshInstance';
@@ -107,6 +108,8 @@ export const useSession = create<SessionState>((set, get) => ({
   init: async () => {
     // Before anything reads the Keychain: remove secrets an earlier install left behind. A failure must never stop the app opening.
     await clearKeychainOnFreshInstall(keychainDeps).catch(() => undefined);
+    // Removes a Save to Files temporary folder an earlier run left behind
+    fileExport.sweep().catch(() => undefined);
     let mode = getMode();
     if (mode === 'live' && !(await hasCredentials())) {
       mode = null;

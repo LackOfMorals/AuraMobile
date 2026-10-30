@@ -1,9 +1,9 @@
-# Jax
+# Jue
 
 An independent iOS (and, later, Android) app for looking after your own [Neo4j Aura](https://neo4j.com/cloud/platform/aura-graph-database/)
 instances from your phone. Built with bare React Native (no Expo), TypeScript and a local SQLite store.
 
-Jax falls under the same terms as [Neo4j Labs projects](https://neo4j.com/labs/#disclaimer): it is experimental, provided without
+Jue falls under the same terms as [Neo4j Labs projects](https://neo4j.com/labs/#disclaimer): it is experimental, provided without
 warranties, support or service commitments, and not intended for production use.
 
 It is **not affiliated with, or endorsed by, Neo4j.** Neo4j and Aura are trademarks of Neo4j, Inc.
@@ -13,6 +13,7 @@ It is **not affiliated with, or endorsed by, Neo4j.** Neo4j and Aura are tradema
   deleting needs the instance name typed. AuraDB Free can only be deleted.
 - Status updates by itself while a change runs.
 - Face ID (device passcode as fallback) to open the app. API credentials and instance passwords live in the iOS Keychain.
+- Save an instance's connection details to a file you choose (for example iCloud Drive, to pick up on a Mac), after a warning and Face ID.
 - Demo mode with sample data and no account.
 - Everything is local: the app talks only to Aura's own API. No analytics, no tracking. See [PRIVACY.md](PRIVACY.md) and [docs/security.md](docs/security.md) (how secrets are stored, and the limits).
 

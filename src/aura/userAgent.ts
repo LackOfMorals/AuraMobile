@@ -1,10 +1,8 @@
 import { Platform } from 'react-native';
 import { version } from '../../package.json';
+import { APP_NAME } from '../appName';
 
-/** One word, no spaces: a User-Agent product token. The display name is "Jax". */
-export const APP_NAME = 'Jax';
-
-/** App name, mobile OS, then version: `Jax/ios/0.1.0`. */
+/** App name, mobile OS, then version, for example `Jue/ios/0.1.0`. The name is one word with no spaces, as a User-Agent product token must be. */
 export const userAgentFor = (os: string, appVersion: string): string => `${APP_NAME}/${os}/${appVersion}`;
 
 /**

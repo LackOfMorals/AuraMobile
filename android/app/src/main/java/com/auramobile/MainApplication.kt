@@ -1,4 +1,4 @@
-package com.jaxmobile
+package com.auramobile
 
 import android.app.Application
 import com.facebook.react.PackageList

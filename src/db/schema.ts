@@ -69,6 +69,8 @@ export const instance = sqliteTable(
     /** Whether a password is stored in the Keychain. The password itself never is here. */
     hasStoredPassword: integer('has_stored_password', { mode: 'boolean' }).notNull().default(false),
     passwordRevealCount: integer('password_reveal_count').notNull().default(0),
+    /** How many times the connection details were saved to a file with Save to Files. A count only: nothing about the file or where it went. */
+    passwordExportCount: integer('password_export_count').notNull().default(0),
   },
   t => [index('instance_tenant_idx').on(t.tenantId)],
 );

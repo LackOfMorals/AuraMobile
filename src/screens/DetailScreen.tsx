@@ -18,6 +18,7 @@ import { useColors } from '../theme/colors';
 import { Icon } from '../ui/Icon';
 import { TierStripe } from '../ui/TierStripe';
 import { PasswordField } from '../ui/PasswordField';
+import { SaveToFiles } from '../ui/SaveToFiles';
 import { StatusChip } from '../ui/StatusChip';
 import { EmptyState } from '../ui/parts';
 import { readingColumn } from '../theme/layout';
@@ -146,6 +147,7 @@ export function DetailScreen({ route, navigation }: NativeStackScreenProps<RootS
       {i.hasStoredPassword && !removed && (
         <Card title="Password">
           <PasswordField auraId={i.auraId} />
+          <SaveToFiles instance={{ auraId: i.auraId, name: i.name, connectionUrl: i.connectionUrl }} startOpen={__DEV__ && route.params.devOpenExport === true} />
         </Card>
       )}
 

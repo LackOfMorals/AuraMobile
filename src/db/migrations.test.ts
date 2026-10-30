@@ -32,6 +32,17 @@ describe('migrations', () => {
     expect(db.userVersion()).toBe(MIGRATIONS.length);
   });
 
+  it('upgrade an install already on the first version, keeping its instances and starting the export count at zero', () => {
+    const sqlite = new DatabaseSync(':memory:');
+    const db = target(sqlite);
+    migrate(db, MIGRATIONS.slice(0, 1));
+    expect(db.userVersion()).toBe(1);
+    sqlite.exec("INSERT INTO instance (aura_id, tenant_id, name, status, status_group, has_stored_password, password_reveal_count) VALUES ('d1', 't1', 'orders-prod', 'running', 'READY', 1, 3)");
+    expect(migrate(db)).toBe(MIGRATIONS.length);
+    const row = sqlite.prepare("SELECT name, has_stored_password AS stored, password_reveal_count AS reveals, password_export_count AS exports FROM instance WHERE aura_id = 'd1'").get() as Record<string, unknown>;
+    expect({ ...row }).toEqual({ name: 'orders-prod', stored: 1, reveals: 3, exports: 0 });
+  });
+
   it('roll back a failing migration and keep the previous version', () => {
     const sqlite = new DatabaseSync(':memory:');
     const db = target(sqlite);

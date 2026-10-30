@@ -7,11 +7,11 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Jax uses Face ID to keep your Aura credentials and instance details private.</string>
+	<string>Jue uses Face ID to keep your Aura credentials and instance details private.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>CFBundleDisplayName</key>
-	<string>Jax</string>
+	<string>Jue</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

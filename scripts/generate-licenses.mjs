@@ -58,7 +58,7 @@ const packages = names.map((name) => {
 });
 
 // Native pods
-const ack = join(root, 'ios/Pods/Target Support Files/Pods-JaxMobile/Pods-JaxMobile-acknowledgements.plist');
+const ack = join(root, 'ios/Pods/Target Support Files/Pods-AuraMobile/Pods-AuraMobile-acknowledgements.plist');
 const pods = existsSync(ack)
   ? JSON.parse(execFileSync('plutil', ['-convert', 'json', '-o', '-', ack])).PreferenceSpecifiers.filter((p) => p.Title && p.FooterText && p.Title !== 'Acknowledgements').map((p) => ({
       name: p.Title,

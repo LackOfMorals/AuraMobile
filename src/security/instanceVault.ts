@@ -2,14 +2,18 @@ import { eq, sql } from 'drizzle-orm';
 import * as Keychain from 'react-native-keychain';
 import { db, schema } from '../db';
 import type { CredentialVault } from '../services/operations/types';
+import { instancePasswordService } from './keychainNames';
 
-const service = (auraId: string) => `io.github.lackofmorals.jax.instance-password.${auraId}`;
+const service = instancePasswordService;
 
 /**
  * Instance passwords, one Keychain item each. Aura shows a password once, so it is stored the moment it arrives. Reading it
  * back needs Face ID or the device passcode every time, and it never leaves this device.
  */
-export const instanceVault: CredentialVault & { reveal(auraId: string): Promise<{ username: string; password: string } | null> } = {
+export const instanceVault: CredentialVault & {
+  reveal(auraId: string): Promise<{ username: string; password: string } | null>;
+  recordExport(auraId: string): Promise<void>;
+} = {
   async save(auraId, username, password) {
     const stored = await Keychain.setGenericPassword(username, password, {
       service: service(auraId),
@@ -28,6 +32,14 @@ export const instanceVault: CredentialVault & { reveal(auraId: string): Promise<
   async delete(auraId) {
     await Keychain.resetGenericPassword({ service: service(auraId) });
     await db.update(schema.instance).set({ hasStoredPassword: false }).where(eq(schema.instance.auraId, auraId));
+  },
+
+  /** Counts one Save to Files export. Only a count: the password is never given to this. */
+  async recordExport(auraId) {
+    await db
+      .update(schema.instance)
+      .set({ passwordExportCount: sql`${schema.instance.passwordExportCount} + 1` })
+      .where(eq(schema.instance.auraId, auraId));
   },
 
   /** Prompts for Face ID or the passcode. Null if the person cancels or nothing is stored. */

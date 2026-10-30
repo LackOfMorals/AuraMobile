@@ -1,6 +1,8 @@
 import * as Keychain from 'react-native-keychain';
+import { APP_NAME } from '../appName';
+import { APPLOCK_SERVICE } from './keychainNames';
 
-const SERVICE = 'io.github.lackofmorals.jax.applock';
+const SERVICE = APPLOCK_SERVICE;
 const SENTINEL = 'unlocked';
 
 export type UnlockResult =
@@ -39,7 +41,7 @@ export async function unlock(): Promise<UnlockResult> {
   try {
     const item = await Keychain.getGenericPassword({
       ...options,
-      authenticationPrompt: { title: 'Unlock Jax', cancel: 'Cancel' },
+      authenticationPrompt: { title: `Unlock ${APP_NAME}`, cancel: 'Cancel' },
     });
     return item && item.password === SENTINEL
       ? { ok: true }

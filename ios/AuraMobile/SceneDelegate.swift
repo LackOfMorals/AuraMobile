@@ -31,7 +31,7 @@ class SceneDelegate: RCTDefaultReactNativeFactoryDelegate, UIWindowSceneDelegate
     #endif
     
     reactNativeFactory?.startReactNative(
-      withModuleName: "JaxMobile",
+      withModuleName: "AuraMobile",
       in: window,
       connectionOptions: connectionOptions
     )
@@ -47,7 +47,8 @@ class SceneDelegate: RCTDefaultReactNativeFactoryDelegate, UIWindowSceneDelegate
     cover.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     cover.backgroundColor = .systemBackground
     let title = UILabel()
-    title.text = "Jax"
+    // Read from the app itself, so a change of name needs no change here
+    title.text = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
     title.font = .systemFont(ofSize: 28, weight: .bold)
     title.textColor = .label
     title.sizeToFit()

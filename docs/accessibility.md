@@ -1,4 +1,4 @@
-# Accessibility and visual design: what Apple asks, and how Jax measures up
+# Accessibility and visual design: what Apple asks, and how Jue measures up
 
 Researched 30 October 2026, iOS only. Android comes after the iOS submission.
 
@@ -53,7 +53,7 @@ Apple points to WCAG Level AA, and its Accessibility Inspector uses these values
 - You can edit labels after release without a new submission.
 - Source: [Overview](https://developer.apple.com/help/app-store-connect/manage-app-accessibility/overview-of-accessibility-nutrition-labels/), [Manage](https://developer.apple.com/help/app-store-connect/manage-app-accessibility/manage-accessibility-nutrition-labels/)
 
-## 2. How Jax measures up
+## 2. How Jue measures up
 
 Measured from the code on 30 October 2026, before the fixes in section 3. Contrast was computed from the colours in `src/theme/colors.ts`. Nothing here has been checked on the phone yet.
 

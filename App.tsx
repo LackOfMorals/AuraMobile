@@ -14,6 +14,7 @@ import type { RootStackParamList } from './src/navigation/types';
 import { devArg } from './src/dev/launchArgs';
 import { SetupScreen } from './src/screens/SetupScreen';
 import { LockGate } from './src/security/LockGate';
+import { instanceVault } from './src/security/instanceVault';
 import { ErrorBoundary } from './src/ui/ErrorBoundary';
 import { operations, useSession } from './src/state/session';
 import { useColors } from './src/theme/colors';
@@ -23,7 +24,7 @@ const Gate = createNativeStackNavigator();
 const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 // Development only (see devArg): a screenshot run must not have a "Open debugger to view warnings" toast in the picture
-if (devArg('JaxSkipLock') !== undefined) {
+if (devArg('DevSkipLock') !== undefined) {
   LogBox.ignoreAllLogs();
 }
 
@@ -38,6 +39,14 @@ function openDevScreen(name: string) {
       break;
     case 'Detail':
       navigationRef.navigate('Detail', { auraId: 'd0000001' });
+      break;
+    case 'Export':
+      // Gives the demo instance a stored password so its Save to Files button shows, then opens the warning
+      instanceVault
+        .save('d0000001', 'neo4j', 'demo-not-a-real-password')
+        .then(() => instanceVault.link('d0000001'))
+        .then(() => navigationRef.navigate('Detail', { auraId: 'd0000001', devOpenExport: true }))
+        .catch(() => undefined);
       break;
     case 'Edit':
       navigationRef.navigate('Edit', { auraId: 'd0000002' });
@@ -81,13 +90,13 @@ function Routes() {
 
   // Development only: start the demo, and open the screen asked for, so a screenshot run needs no taps
   const startDemo = useSession(s => s.startDemo);
-  const devDemo = devArg('JaxDemo') !== undefined;
+  const devDemo = devArg('DevDemo') !== undefined;
   useEffect(() => {
     if (devDemo && ready && mode === null) {
       startDemo();
     }
   }, [devDemo, ready, mode, startDemo]);
-  const devScreen = devArg('JaxScreen');
+  const devScreen = devArg('DevScreen');
   useEffect(() => {
     if (devScreen && mode !== null && synced) {
       // Wait until the main screens exist: navigating before they do is a warning, and goes nowhere

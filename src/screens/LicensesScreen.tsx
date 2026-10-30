@@ -1,3 +1,4 @@
+import { APP_NAME } from '../appName';
 import { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../ui/Text';
@@ -25,7 +26,7 @@ export function LicensesScreen() {
       keyExtractor={e => e.name}
       ListHeaderComponent={
         <Text style={{ color: c.muted }}>
-          Jax is licensed under the Apache License 2.0. It is built on the open-source components below, each under its own licence.
+          {APP_NAME} is licensed under the Apache License 2.0. It is built on the open-source components below, each under its own licence.
         </Text>
       }
       renderItem={({ item }) => {
