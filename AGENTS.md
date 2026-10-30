@@ -66,7 +66,7 @@ They do nothing in a Release build. Do not edit project files while a screenshot
 | `src/legal/` | Generated licence list and the public privacy and support addresses |
 | `ios/JaxMobile/` | Native iOS app: Info.plist, launch screen, privacy cover (`SceneDelegate.swift`) |
 | `scripts/` | Screenshot runner, pixel comparison, licence generator |
-| `docs/` | `app-store.md` (listing, review notes, upload steps), `accessibility.md` (rules and audit) |
+| `docs/` | `app-store.md` (listing, review notes, upload steps), `accessibility.md` (rules and audit), `security.md` (what is stored where and the known limits) |
 
 ## Domain rules the tests enforce
 
@@ -80,6 +80,7 @@ They do nothing in a Release build. Do not edit project files while a screenshot
   turning it on in the same change as a resize from under 8 GB, so resize first, then enable it. Choosing a size under 8 GB with vector on is
   refused.
 - **User-Agent** is `Jax/<ios|android>/<version>`. The version comes from `package.json`; the iOS and Android projects must match (a test checks).
+- **Secrets outlive a deleted app** (iOS keeps Keychain items). `src/security/freshInstall.ts` clears the client secret and instance passwords on the first launch of a fresh install, and must never clear an install that is already in use. Do not remove that guard.
 - Sort and filter options never use "attention" wording or grouping.
 
 ## Conventions

@@ -12,6 +12,7 @@ Notes for AI assistants:
 
 - [AGENTS.md](https://github.com/LackOfMorals/JaxMobile/blob/main/AGENTS.md): rules, commands, where things are, domain rules, deliberate oddities, shipping
 - [README](https://github.com/LackOfMorals/JaxMobile/blob/main/README.md): requirements, how to run and check it
+- [Security](https://github.com/LackOfMorals/JaxMobile/blob/main/docs/security.md): where the Aura client ID and secret and instance passwords are stored, what protects them, and the known limits
 - [Accessibility](https://github.com/LackOfMorals/JaxMobile/blob/main/docs/accessibility.md): what Apple's guidelines ask for text size, colour and touch targets, and how Jax measures up
 - [App Store notes](https://github.com/LackOfMorals/JaxMobile/blob/main/docs/app-store.md): listing text, review notes, privacy answers and upload steps
 - [Screenshot runner](https://github.com/LackOfMorals/JaxMobile/blob/main/scripts/screenshots.mjs): runs the app on several iPhone and iPad simulators, in light, dark and largest text, and compares with a baseline

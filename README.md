@@ -14,7 +14,7 @@ It is **not affiliated with, or endorsed by, Neo4j.** Neo4j and Aura are tradema
 - Status updates by itself while a change runs.
 - Face ID (device passcode as fallback) to open the app. API credentials and instance passwords live in the iOS Keychain.
 - Demo mode with sample data and no account.
-- Everything is local: the app talks only to Aura's own API. No analytics, no tracking. See [PRIVACY.md](PRIVACY.md).
+- Everything is local: the app talks only to Aura's own API. No analytics, no tracking. See [PRIVACY.md](PRIVACY.md) and [docs/security.md](docs/security.md) (how secrets are stored, and the limits).
 
 The sync, planning and Aura-client logic is adapted from [grandstack-web-aura](https://github.com/grand-stack/grandstack-web-aura), Apache-2.0.
 
