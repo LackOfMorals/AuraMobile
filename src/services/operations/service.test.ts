@@ -123,6 +123,12 @@ describe("the vector rule in the engine", () => {
     expect(op(s, operationId).desired.changes).toMatchObject({ memory: "4GB", vectorOptimized: false });
   });
 
+  it("refuses vector in the same change as a resize from under 8 GB, which Aura rejects, but allows the resize and then vector", async () => {
+    const s = setup([storedInstance({ memory: "4GB", storage: "16GB", vectorOptimized: false })]);
+    await expect(s.service.plan("UPDATE", "d0000001", { memory: "8GB", storage: "32GB", vectorOptimized: true })).rejects.toThrow(/same change as a resize/);
+    await expect(s.service.plan("UPDATE", "d0000001", { memory: "8GB", storage: "32GB" })).resolves.toBeDefined();
+  });
+
   it("allows vector at 8 GB", async () => {
     const s = setup([storedInstance({ vectorOptimized: false })]);
     await expect(s.service.plan("UPDATE", "d0000001", { vectorOptimized: true })).resolves.toBeDefined();
@@ -332,6 +338,7 @@ describe("delete", () => {
     const del = spy(s.aura, "deleteInstance");
     const { operationId } = await s.service.planDelete("d0000001");
     expect(op(s, operationId).plan.warnings[0]).toMatch(/cannot be undone/);
+    expect(op(s, operationId).plan.warnings.join(" ")).not.toMatch(/snapshot|export/i);
     await expect(s.service.confirm(operationId)).rejects.toThrow(/Type the instance's name exactly/);
     await expect(s.service.confirm(operationId, "orders-pro")).rejects.toThrow(UserError);
     await expect(s.service.confirm(operationId, "ORDERS-PROD")).rejects.toThrow(UserError);
@@ -381,7 +388,7 @@ describe("create", () => {
     const create = spy(s.aura, "createInstance");
     const { operationId } = await s.service.planCreate(input);
     expect(create).not.toHaveBeenCalled();
-    expect(op(s, operationId).plan.warnings[0]).toMatch(/billed/);
+    expect(op(s, operationId).plan.warnings[0]).toBe("Creating an instance can cause you to be billed. This app does not know your billing arrangements. Only proceed if you are sure.");
     await s.service.confirm(operationId);
     await s.service.idle();
     expect(create).toHaveBeenCalledTimes(1);

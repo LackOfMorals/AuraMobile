@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from './Text';
 import { useColors } from '../theme/colors';
 
 type ButtonProps = {
@@ -26,11 +27,13 @@ export function Button({ label, onPress, variant = 'primary', disabled }: Button
   );
 }
 
-export function Banner({ tone, children }: { tone: 'danger' | 'info'; children: ReactNode }) {
+/** "warning" has its own amber background and a thicker edge, so it does not look like any other box on the screen. */
+export function Banner({ tone, children }: { tone: 'danger' | 'info' | 'warning'; children: ReactNode }) {
   const c = useColors();
-  const color = tone === 'danger' ? c.danger : c.primary;
+  const color = tone === 'danger' ? c.danger : tone === 'warning' ? c.tone.warn.fg : c.primary;
+  const warning = tone === 'warning';
   return (
-    <View accessibilityRole="alert" style={[styles.banner, { borderColor: color, backgroundColor: c.card }]}>
+    <View accessibilityRole="alert" style={[styles.banner, warning && styles.warning, { borderColor: color, backgroundColor: warning ? c.tone.warn.bg : c.card }]}>
       <Text style={{ color: c.text }}>{children}</Text>
     </View>
   );
@@ -45,7 +48,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
   },
-  buttonText: { fontSize: 16, fontWeight: '600' },
+  buttonText: { fontSize: 17, fontWeight: '600' },
   disabled: { opacity: 0.5 },
   banner: { borderWidth: 1, borderRadius: 12, padding: 12 },
+  warning: { borderWidth: 2 },
 });

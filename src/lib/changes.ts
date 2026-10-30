@@ -158,14 +158,23 @@ export function vectorAllowed(memory: string | null | undefined): boolean {
 
 export const VECTOR_RULE = `Vector optimisation needs ${VECTOR_MIN_GB} GB or more of memory.`;
 
+export const VECTOR_AFTER_RESIZE = `Aura does not allow vector optimisation to be turned on in the same change as a resize. Resize first, then turn it on once the resize has finished.`;
+
 /**
- * What is wrong with a change to vector optimisation or memory, or undefined when it is fine. Only a change that touches one of
- * the two is checked, so renaming an instance that already breaks the rule is never blocked.
+ * What is wrong with a change to vector optimisation or memory, or undefined when it is fine.
+ * - Turning vector on needs the instance to have 8 GB or more of memory NOW. A resize to 8 GB or more in the same change does not
+ *   count: Aura rejects it, so it is turned on after the resize has finished.
+ * - Choosing a size under 8 GB with vector on is refused, so vector has to be turned off first.
+ * Only a change that touches one of the two is checked, so renaming an instance that already breaks the rule is never blocked.
  */
 export function vectorProblem(current: { memory: string | null; vectorOptimized: boolean | null }, changes: { memory?: string; vectorOptimized?: boolean }): string | undefined {
-  const touches = changes.vectorOptimized === true || changes.memory !== undefined;
-  const memory = changes.memory ?? current.memory;
+  const turningOn = changes.vectorOptimized === true && current.vectorOptimized !== true;
+  if (turningOn && !vectorAllowed(current.memory)) {
+    return changes.memory !== undefined && vectorAllowed(changes.memory) ? VECTOR_AFTER_RESIZE : VECTOR_RULE;
+  }
   const vector = changes.vectorOptimized ?? current.vectorOptimized;
-  if (!touches || vector !== true || vectorAllowed(memory)) return undefined;
-  return changes.memory !== undefined && changes.vectorOptimized === undefined ? `${VECTOR_RULE} Turn vector optimisation off before choosing a smaller size.` : VECTOR_RULE;
+  if (changes.memory !== undefined && vector === true && !vectorAllowed(changes.memory)) {
+    return changes.vectorOptimized === undefined ? `${VECTOR_RULE} Turn vector optimisation off before choosing a smaller size.` : VECTOR_RULE;
+  }
+  return undefined;
 }

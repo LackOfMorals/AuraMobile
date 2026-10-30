@@ -1,4 +1,5 @@
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { Text } from './Text';
 import { statusView, Tone } from '../lib/status';
 import { useColors } from '../theme/colors';
 import { Icon } from './Icon';

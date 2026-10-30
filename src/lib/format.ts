@@ -9,9 +9,9 @@ export function size(value?: string | null): string {
   return m ? `${m[1]} GB` : value;
 }
 
-/** For example "8 GB · 16 GB". Free instances have no storage, so only the memory shows. */
+/** For example "8 GB memory · 16 GB storage", so two sizes are never left unlabelled. Free instances have no storage, so only the memory shows. */
 export function memoryAndStorage(memory?: string | null, storage?: string | null): string {
-  return [size(memory), size(storage)].filter(Boolean).join(" · ");
+  return [memory ? `${size(memory)} memory` : "", storage ? `${size(storage)} storage` : ""].filter(Boolean).join(" · ");
 }
 
 /** The number of gigabytes in "16GB", or NaN when it is not a size. For sorting. */

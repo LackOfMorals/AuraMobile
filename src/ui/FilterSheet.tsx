@@ -1,4 +1,5 @@
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from './Text';
 import { tierName } from '../lib/create';
 import { Facet, facetCounts, Filterable, Filters, SORTS } from '../lib/filters';
 import { cloudLabel } from '../lib/format';
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
   section: { gap: 2, marginBottom: 8 },
   legend: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 },
   option: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  optionLabel: { flex: 1, fontSize: 16 },
+  optionLabel: { flex: 1, fontSize: 17 },
   box: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   radio: { borderRadius: 11 },
   footer: { flexDirection: 'row', gap: 12, padding: 16, paddingBottom: 0 },

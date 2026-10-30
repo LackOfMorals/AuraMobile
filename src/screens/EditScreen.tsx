@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { Text } from '../ui/Text';
 import { getEditContext } from '../db/queries';
 import { FREE_DELETE_ONLY, isFreeTier } from '../lib/actions';
 import { buildChange, EditForm, formFromInstance, MAX_NAME, nameError, nameLength, sizeKey, VECTOR_MIN_GB, vectorAllowed, vectorProblem } from '../lib/changes';
@@ -55,8 +56,8 @@ export function EditScreen({ route, navigation }: NativeStackScreenProps<RootSta
     );
   }
   const problem = nameError(form.name);
-  const effectiveMemory = form.size ? form.size.split('|')[0] : instance.memory;
-  const vectorOk = vectorAllowed(effectiveMemory);
+  // Vector can be turned on only if the instance has the memory now: a resize in the same change does not count
+  const vectorOk = vectorAllowed(instance.memory);
   const vectorIssue = vectorProblem(instance, change.input);
   const patch = (p: Partial<EditForm>) => setForm({ ...form, ...p });
 
@@ -81,7 +82,7 @@ export function EditScreen({ route, navigation }: NativeStackScreenProps<RootSta
         autoCapitalize="none"
         autoCorrect={false}
         onChangeText={name => patch({ name })}
-        style={[styles.input, { color: c.text, borderColor: problem ? c.danger : c.border, backgroundColor: c.card }]}
+        style={[styles.input, { color: c.text, borderColor: problem ? c.danger : c.control, backgroundColor: c.card }]}
         value={form.name}
       />
       <Text style={{ color: problem ? c.danger : c.muted }}>{problem ?? `${nameLength(form.name)} of ${MAX_NAME} characters`}</Text>
@@ -107,7 +108,9 @@ export function EditScreen({ route, navigation }: NativeStackScreenProps<RootSta
         </View>
       )}
       {vectorIssue && <Text style={{ color: c.danger }}>{vectorIssue}</Text>}
-      {instance.vectorOptimized !== null && !vectorOk && !vectorIssue && <Text style={{ color: c.muted }}>Vector optimisation needs {VECTOR_MIN_GB} GB or more of memory.</Text>}
+      {instance.vectorOptimized !== null && !vectorOk && !vectorIssue && (
+        <Text style={{ color: c.muted }}>Vector optimisation needs {VECTOR_MIN_GB} GB or more of memory. If you are resizing to {VECTOR_MIN_GB} GB or more, turn it on after the resize has finished.</Text>
+      )}
       {instance.graphAnalyticsPlugin !== null && (
         <View style={styles.switchRow}>
           <Text style={[styles.switchLabel, { color: c.text }]}>Graph analytics plugin</Text>
@@ -124,8 +127,8 @@ export function EditScreen({ route, navigation }: NativeStackScreenProps<RootSta
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { padding: 16, gap: 10 },
-  label: { fontSize: 16, fontWeight: '700', marginTop: 8 },
-  input: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 16 },
+  label: { fontSize: 17, fontWeight: '700', marginTop: 8 },
+  input: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 17 },
   switchRow: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },
-  switchLabel: { fontSize: 16 },
+  switchLabel: { fontSize: 17 },
 });

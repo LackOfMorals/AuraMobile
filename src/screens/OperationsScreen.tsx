@@ -1,7 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../ui/Text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { listOperations } from '../db/queries';
 import { relativeTime } from '../lib/format';
@@ -39,7 +40,7 @@ export function OperationsScreen() {
             accessibilityRole="button"
             accessibilityState={{ selected: filter === f.key }}
             onPress={() => setFilter(f.key)}
-            style={[styles.chip, { borderColor: filter === f.key ? c.primary : c.border, backgroundColor: filter === f.key ? c.primary : c.card }]}>
+            style={[styles.chip, { borderColor: filter === f.key ? c.primary : c.control, backgroundColor: filter === f.key ? c.primary : c.card }]}>
             <Text style={{ color: filter === f.key ? c.onPrimary : c.text, fontWeight: '600' }}>{f.label}</Text>
           </Pressable>
         ))}
@@ -83,5 +84,5 @@ const styles = StyleSheet.create({
   chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: 999, borderWidth: 1 },
   list: { padding: 16, gap: 12 },
   card: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 6 },
-  name: { fontSize: 16, fontWeight: '600' },
+  name: { fontSize: 17, fontWeight: '600' },
 });

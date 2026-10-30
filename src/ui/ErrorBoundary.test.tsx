@@ -1,4 +1,4 @@
-import { Text } from 'react-native';
+import { Text } from './Text';
 import ReactTestRenderer from 'react-test-renderer';
 import { ErrorBoundary } from './ErrorBoundary';
 

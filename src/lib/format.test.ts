@@ -14,8 +14,9 @@ describe("sizes", () => {
     expect(size(undefined)).toBe("");
   });
   it("shows memory and storage together, or memory alone for a free instance", () => {
-    expect(memoryAndStorage("8GB", "16GB")).toBe("8 GB · 16 GB");
-    expect(memoryAndStorage("1GB", null)).toBe("1 GB");
+    expect(memoryAndStorage("8GB", "16GB")).toBe("8 GB memory · 16 GB storage");
+    expect(memoryAndStorage("1GB", null)).toBe("1 GB memory");
+    expect(memoryAndStorage(null, "16GB")).toBe("16 GB storage");
     expect(memoryAndStorage(null, null)).toBe("");
   });
   it("reads gigabytes as a number for sorting", () => {

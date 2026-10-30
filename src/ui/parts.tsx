@@ -1,12 +1,13 @@
 import { ReactNode, useEffect, useRef } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Animated, Pressable, StyleSheet, View, ViewStyle } from 'react-native';
+import { Text } from './Text';
 import { useColors } from '../theme/colors';
 
 /** A pressable tag: a facet value and how many instances it has. */
 export function TagButton({ label, onPress }: { label: string; onPress: () => void }) {
   const c = useColors();
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={[styles.tag, { backgroundColor: c.card, borderColor: c.border }]}>
+    <Pressable accessibilityRole="button" onPress={onPress} style={[styles.tag, { backgroundColor: c.card, borderColor: c.control }]}>
       <Text style={{ color: c.primary, fontWeight: '600' }}>{label}</Text>
     </Pressable>
   );

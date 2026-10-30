@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { Text } from '../ui/Text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSession } from '../state/session';
 import { useColors } from '../theme/colors';
@@ -26,7 +27,7 @@ export function SetupScreen() {
     }
   }
 
-  const input = [styles.input, { color: c.text, borderColor: c.border, backgroundColor: c.card }];
+  const input = [styles.input, { color: c.text, borderColor: c.control, backgroundColor: c.card }];
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: c.bg }]}>
@@ -73,6 +74,6 @@ const styles = StyleSheet.create({
   content: { padding: 16, gap: 12 },
   title: { fontSize: 24, fontWeight: '700' },
   label: { fontSize: 14, fontWeight: '600', marginTop: 4 },
-  input: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 16 },
+  input: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 17 },
   or: { textAlign: 'center', marginTop: 8 },
 });

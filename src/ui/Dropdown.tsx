@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from './Text';
 import { useColors } from '../theme/colors';
 import { Option } from './FilterSheet';
 import { Icon } from './Icon';
@@ -31,7 +32,7 @@ export function Dropdown({ label, value, options, onChange, placeholder = 'Choos
         accessibilityState={{ disabled: Boolean(disabled), expanded: open }}
         disabled={disabled}
         onPress={() => setOpen(true)}
-        style={[styles.field, { borderColor: c.border, backgroundColor: c.card }, disabled && styles.disabled]}>
+        style={[styles.field, { borderColor: c.control, backgroundColor: c.card }, disabled && styles.disabled]}>
         <Text numberOfLines={1} style={[styles.value, { color: selected ? c.text : c.muted }]}>
           {selected ? selected.label : placeholder}
         </Text>
@@ -69,10 +70,10 @@ export function Dropdown({ label, value, options, onChange, placeholder = 'Choos
 
 const styles = StyleSheet.create({
   wrap: { gap: 6 },
-  label: { fontSize: 16, fontWeight: '700' },
+  label: { fontSize: 17, fontWeight: '700' },
   field: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12 },
   disabled: { opacity: 0.5 },
-  value: { flex: 1, fontSize: 16 },
+  value: { flex: 1, fontSize: 17 },
   scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: { maxHeight: '70%', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 24 },
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, paddingBottom: 4 },

@@ -11,9 +11,11 @@ const light = {
   primary: '#0a6190',
   onPrimary: '#ffffff',
   border: '#d5dee7',
+  /** Edges of things you tap or type in: 3:1 against the page and the card, which `border` is not. */
+  control: '#6f8397',
   danger: '#b3261e',
   tone: {
-    ok: { fg: '#1a7f37', bg: '#e3f4e8' },
+    ok: { fg: '#187335', bg: '#e3f4e8' },
     info: { fg: '#0a6190', bg: '#dceaf4' },
     neutral: { fg: '#53697d', bg: '#e6ecf1' },
     danger: { fg: '#b3261e', bg: '#fbe4e2' },
@@ -29,6 +31,7 @@ const dark: typeof light = {
   primary: '#5db3f0',
   onPrimary: '#0b1520',
   border: '#27405a',
+  control: '#6a85a0',
   danger: '#ff8a80',
   tone: {
     ok: { fg: '#7ddc98', bg: '#12301f' },
@@ -40,6 +43,9 @@ const dark: typeof light = {
 };
 
 export type Colors = typeof light;
+
+/** Both palettes, so a test can check their contrast. */
+export const palettes = { light, dark };
 
 export function useColors(): Colors {
   return useColorScheme() === 'dark' ? dark : light;

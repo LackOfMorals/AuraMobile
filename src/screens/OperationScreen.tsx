@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ReactNode, useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from '../ui/Text';
 import { getOperation } from '../db/queries';
 import { elapsed, operationVerb, progressOf } from '../lib/changes';
 import { operationView } from '../lib/operations';
@@ -110,7 +111,7 @@ export function OperationScreen({ route, navigation }: NativeStackScreenProps<Ro
         ))}
       </Section>
 
-      {op.status === 'PLANNED' && op.plan.warnings.map(w => <Banner key={w} tone="info">{w}</Banner>)}
+      {op.status === 'PLANNED' && op.plan.warnings.map(w => <Banner key={w} tone="warning">{w}</Banner>)}
 
       {op.status === 'PLANNED' && (
         <>
@@ -123,7 +124,7 @@ export function OperationScreen({ route, navigation }: NativeStackScreenProps<Ro
                 autoCapitalize="none"
                 autoCorrect={false}
                 onChangeText={setTyped}
-                style={[styles.input, { color: c.text, borderColor: c.border, backgroundColor: c.card }]}
+                style={[styles.input, { color: c.text, borderColor: c.control, backgroundColor: c.card }]}
                 value={typed}
               />
             </View>
@@ -173,10 +174,10 @@ const styles = StyleSheet.create({
   card: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 10 },
   cardTitle: { fontSize: 18, fontWeight: '700' },
   item: { gap: 2 },
-  itemValue: { fontSize: 16, fontWeight: '600' },
+  itemValue: { fontSize: 17, fontWeight: '600' },
   typed: { gap: 8 },
   bold: { fontWeight: '800' },
-  input: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 16 },
+  input: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 17 },
   step: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   stepText: { flex: 1 },
 });

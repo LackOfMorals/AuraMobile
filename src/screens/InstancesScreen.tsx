@@ -1,7 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from '../ui/Text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { listInstances, tenantNames } from '../db/queries';
 import { activeCount, matches, sortInstances } from '../lib/filters';
@@ -40,14 +41,14 @@ export function InstancesScreen() {
           onChangeText={q => set({ q })}
           placeholder="Search by name"
           placeholderTextColor={c.muted}
-          style={[styles.search, { color: c.text, borderColor: c.border, backgroundColor: c.card }]}
+          style={[styles.search, { color: c.text, borderColor: c.control, backgroundColor: c.card }]}
           value={filters.q}
         />
         <Pressable
           accessibilityLabel={badge ? `Filters, ${badge} on` : 'Filters'}
           accessibilityRole="button"
           onPress={() => setSheet(true)}
-          style={[styles.filterButton, { borderColor: c.border, backgroundColor: c.card }]}>
+          style={[styles.filterButton, { borderColor: c.control, backgroundColor: c.card }]}>
           <Icon name="filter" color={c.primary} />
           {badge > 0 && (
             <View style={[styles.badge, { backgroundColor: c.primary }]}>
@@ -99,7 +100,7 @@ export function InstancesScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   bar: { flexDirection: 'row', gap: 8, padding: 16, paddingBottom: 8 },
-  search: { flex: 1, minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 16 },
+  search: { flex: 1, minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 17 },
   filterButton: { width: 44, height: 44, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   badge: { position: 'absolute', top: -6, right: -6, minWidth: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
   badgeText: { fontSize: 12, fontWeight: '700' },

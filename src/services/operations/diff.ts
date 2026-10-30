@@ -120,7 +120,7 @@ export function describeCreate(r: CreateRequest): Plan {
   return {
     items,
     warnings: [
-      "Creating an instance can change what you are billed. Aura decides, and this app does not know your plan.",
+      "Creating an instance can cause you to be billed. This app does not know your billing arrangements. Only proceed if you are sure.",
       "Aura shows the password once. This app stores it encrypted so you can show it later on the instance page.",
     ],
   };
@@ -132,7 +132,7 @@ export function describeDelete(before: Snapshot): Plan {
     items: [{ field: "state", label: "Instance", before: before.name, after: "Deleted" }],
     warnings: [
       "Deleting an instance cannot be undone. Aura cannot recover its data.",
-      "The password this app stored for it is deleted too. Take a snapshot or an export first if you may need the data.",
+      "The password this app stored for it is deleted too.",
     ],
   };
 }

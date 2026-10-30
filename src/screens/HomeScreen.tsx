@@ -2,7 +2,8 @@ import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
-import { FlatList, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from '../ui/Text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { InstanceRecord, listInstances, tenantNames } from '../db/queries';
 import { Filters } from '../lib/filters';
@@ -99,7 +100,7 @@ export function HomeScreen() {
           placeholder="Search by name"
           placeholderTextColor={c.muted}
           returnKeyType="search"
-          style={[styles.search, { color: c.text, borderColor: c.border, backgroundColor: c.card }]}
+          style={[styles.search, { color: c.text, borderColor: c.control, backgroundColor: c.card }]}
           value={q}
         />
         {summary && (
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
   content: { padding: 16, gap: 14 },
   eyebrow: { fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6 },
   title: { fontSize: 32, fontWeight: '800' },
-  search: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 16 },
+  search: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 17 },
   tagGroup: { gap: 6 },
   legend: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
   tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

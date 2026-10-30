@@ -1,6 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Alert, Linking, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, Linking, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Text } from '../ui/Text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { version } from '../../package.json';
 import { db, schema } from '../db';
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
   content: { padding: 16, gap: 14 },
   title: { fontSize: 28, fontWeight: '800' },
   card: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 4 },
-  value: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
+  value: { fontSize: 17, fontWeight: '600', marginBottom: 8 },
   switchRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   switchText: { flex: 1 },
 });

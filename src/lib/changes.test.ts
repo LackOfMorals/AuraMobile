@@ -1,6 +1,6 @@
 // Copyright (c) "Neo4j"
 // Neo4j Sweden AB [http://neo4j.com]
-import { vectorAllowed, vectorProblem, VECTOR_RULE, MAX_NAME, buildChange, elapsed, formFromInstance, nameError, nameLength, operationVerb, parsePlan, progressOf, sizeKey, sizeOptions, type EditOriginal, type StepLike } from "./changes";
+import { vectorAllowed, vectorProblem, VECTOR_AFTER_RESIZE, VECTOR_RULE, MAX_NAME, buildChange, elapsed, formFromInstance, nameError, nameLength, operationVerb, parsePlan, progressOf, sizeKey, sizeOptions, type EditOriginal, type StepLike } from "./changes";
 
 describe("parsePlan", () => {
   it("reads items and warnings", () => {
@@ -167,7 +167,18 @@ describe("the vector rule", () => {
   });
   it("allows turning vector off while shrinking, and growing with it on", () => {
     expect(vectorProblem({ memory: "16GB", vectorOptimized: true }, { memory: "4GB", vectorOptimized: false })).toBeUndefined();
-    expect(vectorProblem({ memory: "4GB", vectorOptimized: false }, { memory: "16GB", vectorOptimized: true })).toBeUndefined();
+    expect(vectorProblem({ memory: "16GB", vectorOptimized: false }, { memory: "32GB", vectorOptimized: true })).toBeUndefined();
+  });
+  it("refuses turning vector on in the same change as a resize from under 8 GB to 8 GB or more, as Aura does", () => {
+    expect(vectorProblem({ memory: "4GB", vectorOptimized: false }, { memory: "16GB", vectorOptimized: true })).toBe(VECTOR_AFTER_RESIZE);
+    expect(vectorProblem({ memory: "4GB", vectorOptimized: false }, { memory: "8GB", vectorOptimized: true })).toBe(VECTOR_AFTER_RESIZE);
+  });
+  it("allows the resize on its own, and then vector once the instance has the memory", () => {
+    expect(vectorProblem({ memory: "4GB", vectorOptimized: false }, { memory: "16GB" })).toBeUndefined();
+    expect(vectorProblem({ memory: "16GB", vectorOptimized: false }, { vectorOptimized: true })).toBeUndefined();
+  });
+  it("refuses a resize that ends under 8 GB with vector on, even when vector is turned on in the same change", () => {
+    expect(vectorProblem({ memory: "16GB", vectorOptimized: false }, { memory: "4GB", vectorOptimized: true })).toBe(VECTOR_RULE);
   });
   it("does not block a change that does not touch vector or memory, even on an instance that already breaks the rule", () => {
     expect(vectorProblem({ memory: "4GB", vectorOptimized: true }, {})).toBeUndefined();

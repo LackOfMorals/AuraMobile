@@ -1,5 +1,6 @@
 import { Component, ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from './Text';
 import { Button } from './index';
 
 type Props = { children: ReactNode };
@@ -33,5 +34,5 @@ export class ErrorBoundary extends Component<Props, State> {
 const styles = StyleSheet.create({
   box: { flex: 1, justifyContent: 'center', padding: 24, gap: 12 },
   title: { fontSize: 24, fontWeight: '700' },
-  text: { fontSize: 16 },
+  text: { fontSize: 17 },
 });

@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from './Text';
 import type { InstanceRecord } from '../db/queries';
 import { tierName } from '../lib/create';
 import { cloudLabel, size } from '../lib/format';
@@ -25,6 +26,7 @@ export function InstanceCard({ instance, layout, onPress }: Props) {
       style={[styles.card, layout === 'tile' && styles.tile, { backgroundColor: c.card, borderColor: c.border }, removed && styles.removed]}>
       <TierStripe tier={instance.tier} />
       <View style={styles.body}>
+        {instance.tier ? <Text style={[styles.tier, { color: c.text }]}>{tierName(instance.tier)}</Text> : null}
         <Text style={[styles.name, { color: c.text }]}>{instance.name}</Text>
         {removed ? <StatusChip label="Removed from Aura" tone="neutral" /> : <StatusChip status={instance.status} />}
         {instance.memory ? <Text style={[styles.details, { color: c.muted }]}>Memory {size(instance.memory)}</Text> : null}
@@ -40,6 +42,7 @@ const styles = StyleSheet.create({
   tile: { width: 190 },
   removed: { opacity: 0.6 },
   body: { padding: 12, gap: 6, alignItems: 'flex-start' },
-  name: { fontSize: 16, fontWeight: '600' },
+  tier: { fontSize: 13, fontWeight: '700' },
+  name: { fontSize: 17, fontWeight: '600' },
   details: { fontSize: 13 },
 });

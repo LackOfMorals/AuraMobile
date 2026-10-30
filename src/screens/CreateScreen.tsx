@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { Text } from '../ui/Text';
 import { getCreateOptions } from '../db/queries';
 import { MAX_NAME, nameError, nameLength, sizeKey, VECTOR_MIN_GB, vectorAllowed } from '../lib/changes';
 import {
@@ -73,7 +74,6 @@ export function CreateScreen({ navigation }: NativeStackScreenProps<RootStackPar
   const nameProblem = nameError(choice.name);
   const choiceMemory = choice.size.split('|')[0] ?? '';
   const vectorOk = vectorAllowed(choiceMemory);
-  const tenantName = options.tenants.find(t => t.id === choice.tenant)?.name ?? '';
 
   async function review() {
     const vars = createVariables(choice, all);
@@ -148,7 +148,7 @@ export function CreateScreen({ navigation }: NativeStackScreenProps<RootStackPar
             onChangeText={name => update({ name })}
             placeholder="Name"
             placeholderTextColor={c.muted}
-            style={[styles.input, { color: c.text, borderColor: choice.name && nameProblem ? c.danger : c.border, backgroundColor: c.card }]}
+            style={[styles.input, { color: c.text, borderColor: choice.name && nameProblem ? c.danger : c.control, backgroundColor: c.card }]}
             value={choice.name}
           />
           <Text style={{ color: choice.name && nameProblem ? c.danger : c.muted }}>
@@ -167,9 +167,6 @@ export function CreateScreen({ navigation }: NativeStackScreenProps<RootStackPar
               </View>
             </>
           )}
-          <Banner tone="info">
-            {`${tenantName} · ${cloudLabel(choice.cloud)} · ${tierName(choice.type)}. You review everything, including cost warnings, before anything is sent to Aura.`}
-          </Banner>
         </>
       )}
 
@@ -191,9 +188,9 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   content: { padding: 16, gap: 10 },
   title: { fontSize: 26, fontWeight: '800' },
-  input: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 16 },
+  input: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 17 },
   switchRow: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  switchLabel: { fontSize: 16 },
+  switchLabel: { fontSize: 17 },
   bar: { flexDirection: 'row', gap: 12, marginTop: 12 },
   grow: { flex: 1 },
 });

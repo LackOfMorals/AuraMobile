@@ -1,12 +1,6 @@
 import { ReactNode, useEffect, useRef } from 'react';
-import {
-  AppState,
-  Pressable,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { AppState, Pressable, StyleSheet, useColorScheme, View } from 'react-native';
+import { Text } from '../ui/Text';
 import { useLockStore } from '../state/lockStore';
 
 const RELOCK_AFTER_MS = 30_000;
@@ -89,5 +83,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#0a6190',
   },
   disabled: { opacity: 0.5 },
-  buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
+  buttonText: { color: '#fff', fontWeight: '600', fontSize: 17 },
 });

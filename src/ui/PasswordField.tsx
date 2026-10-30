@@ -1,6 +1,7 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useEffect, useRef, useState } from 'react';
-import { AppState, StyleSheet, Text, View } from 'react-native';
+import { AppState, StyleSheet, View } from 'react-native';
+import { Text } from './Text';
 import { instanceVault } from '../security/instanceVault';
 import { useColors } from '../theme/colors';
 import { Button } from './index';
@@ -73,7 +74,7 @@ export function PasswordField({ auraId }: { auraId: string }) {
 
 const styles = StyleSheet.create({
   box: { gap: 6 },
-  value: { fontSize: 16, fontWeight: '600' },
+  value: { fontSize: 17, fontWeight: '600' },
   mono: { fontFamily: 'Menlo' },
   row: { flexDirection: 'row', gap: 10, flexWrap: 'wrap', marginTop: 4 },
 });
