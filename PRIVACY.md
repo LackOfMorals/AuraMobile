@@ -18,7 +18,7 @@ Jax falls under the same terms as [Neo4j Labs projects](https://neo4j.com/labs/#
 | A copy of your account's details: project names, instance names, status, size, region, connection URLs, and the history of changes you made in the app | The app's own storage | Contains no passwords or secrets. It may be included in backups you make of your device. |
 | Preferences (for example, whether changes are switched on) | The app's own storage | |
 
-You can remove all of it at any time: **Account, then Disconnect and clear data**. Deleting the app removes it too.
+You can remove all of it at any time: **Account, then Disconnect and clear data**. Deleting the app removes the copy of your account and your preferences, but **iOS keeps Keychain items when an app is deleted**. Jax removes its saved Aura credentials and instance passwords the next time it is installed and opened. To remove them straight away, use Disconnect and clear data before you delete the app.
 
 ## What the app sends, and to whom
 

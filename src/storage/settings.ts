@@ -40,3 +40,15 @@ export function getAllowChanges(): boolean {
 export function setAllowChanges(allow: boolean): void {
   store.set('allowChanges', allow);
 }
+
+/**
+ * Set once an install has started up. App storage goes when the app is deleted but the Keychain does not, so a missing marker
+ * means a fresh install (see security/freshInstall.ts).
+ */
+export function getInstallMarker(): boolean {
+  return store.getBoolean('installed') ?? false;
+}
+
+export function setInstallMarker(): void {
+  store.set('installed', true);
+}
