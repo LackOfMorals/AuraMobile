@@ -1,6 +1,11 @@
-import { Alert, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Alert, Linking, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { version } from '../../package.json';
 import { db, schema } from '../db';
+import { PRIVACY_URL } from '../legal/links';
+import type { RootStackParamList } from '../navigation/types';
 import { lastSyncedAt } from '../db/queries';
 import { relativeTime } from '../lib/format';
 import { useSession } from '../state/session';
@@ -14,6 +19,7 @@ const account = async () => (await db.select().from(schema.account))[0];
 /** Connection details, sync, and disconnect. Credential replacement and sync history come in a later phase. */
 export function AccountScreen() {
   const c = useColors();
+  const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { mode, syncing, lastResult, syncNow, disconnect, allowChanges, setAllowChanges } = useSession();
   const row = useDbQuery(account);
   const synced = useDbQuery(lastSyncedAt);
@@ -57,6 +63,17 @@ export function AccountScreen() {
         {lastResult?.status === 'SLOWED' && <Banner tone="info">Aura asked us to slow down, so the last sync took longer than usual.</Banner>}
         <Button label={syncing ? 'Syncing…' : 'Sync now'} disabled={syncing} onPress={syncNow} />
         <Button label="Disconnect and clear data" variant="danger" onPress={confirmDisconnect} />
+
+        <View style={[styles.card, { backgroundColor: c.card, borderColor: c.border }]}>
+          <Text accessibilityRole="header" style={[styles.value, { color: c.text, marginBottom: 2 }]}>About</Text>
+          <Text style={{ color: c.text }}>Aura Mobile {version}</Text>
+          <Text style={{ color: c.muted, marginBottom: 8 }}>
+            An independent app. It is not affiliated with, or endorsed by, Neo4j. Neo4j and Aura are trademarks of Neo4j, Inc. Everything you see here stays on this
+            device, except what is sent to Aura's own API to read or change your account.
+          </Text>
+          {PRIVACY_URL !== '' && <Button label="Privacy policy" variant="secondary" onPress={() => Linking.openURL(PRIVACY_URL)} />}
+          <Button label="Open source licences" variant="secondary" onPress={() => nav.navigate('Licenses')} />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

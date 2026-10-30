@@ -7,11 +7,13 @@ import { FirstSyncScreen } from './src/screens/FirstSyncScreen';
 import { DetailScreen } from './src/screens/DetailScreen';
 import { CreateScreen } from './src/screens/CreateScreen';
 import { EditScreen } from './src/screens/EditScreen';
+import { LicensesScreen } from './src/screens/LicensesScreen';
 import { OperationScreen } from './src/screens/OperationScreen';
 import { Tabs } from './src/navigation/Tabs';
 import type { RootStackParamList } from './src/navigation/types';
 import { SetupScreen } from './src/screens/SetupScreen';
 import { LockGate } from './src/security/LockGate';
+import { ErrorBoundary } from './src/ui/ErrorBoundary';
 import { operations, useSession } from './src/state/session';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -53,6 +55,7 @@ function Routes() {
         <Stack.Navigator>
           <Stack.Screen name="Main" component={Tabs} options={{ headerShown: false }} />
           <Stack.Screen name="Detail" component={DetailScreen} options={{ title: 'Instance', headerBackTitle: 'Back' }} />
+          <Stack.Screen name="Licenses" component={LicensesScreen} options={{ title: 'Open source licences', headerBackTitle: 'Back' }} />
           <Stack.Screen name="Create" component={CreateScreen} options={{ title: 'New instance', headerBackTitle: 'Back' }} />
           <Stack.Screen name="Edit" component={EditScreen} options={{ title: 'Edit instance', headerBackTitle: 'Back' }} />
           <Stack.Screen name="Operation" component={OperationScreen} options={{ title: 'Change', headerBackTitle: 'Back' }} />
@@ -73,7 +76,9 @@ function App() {
     <SafeAreaProvider>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <LockGate>
-        <Routes />
+        <ErrorBoundary>
+          <Routes />
+        </ErrorBoundary>
       </LockGate>
     </SafeAreaProvider>
   );
