@@ -115,6 +115,7 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
 				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
+				A1B2C3D4E5F60718293A4B5C /* Allow Metro on local network (Debug only) */,
 			);
 			buildRules = (
 			);
@@ -243,6 +244,25 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AuraMobile/Pods-AuraMobile-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		A1B2C3D4E5F60718293A4B5C /* Allow Metro on local network (Debug only) */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Allow Metro on local network (Debug only)";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"${CONFIGURATION}\" = \"Debug\" ]; then\n  plist=\"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n  /usr/libexec/PlistBuddy -c \"Add :NSAppTransportSecurity:NSAllowsLocalNetworking bool true\" \"$plist\" 2>/dev/null || /usr/libexec/PlistBuddy -c \"Set :NSAppTransportSecurity:NSAllowsLocalNetworking true\" \"$plist\"\nfi\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -279,7 +299,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = io.github.lackofmorals.auramobile;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.lackofmorals.jax;
 				PRODUCT_NAME = AuraMobile;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -311,7 +331,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = io.github.lackofmorals.auramobile;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.lackofmorals.jax;
 				PRODUCT_NAME = AuraMobile;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;

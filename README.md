@@ -1,7 +1,10 @@
-# Aura Mobile
+# Jax
 
 An independent iOS (and, later, Android) app for looking after your own [Neo4j Aura](https://neo4j.com/cloud/platform/aura-graph-database/)
 instances from your phone. Built with bare React Native (no Expo), TypeScript and a local SQLite store.
+
+Jax falls under the same terms as [Neo4j Labs projects](https://neo4j.com/labs/#disclaimer): it is experimental, provided without
+warranties, support or service commitments, and not intended for production use.
 
 It is **not affiliated with, or endorsed by, Neo4j.** Neo4j and Aura are trademarks of Neo4j, Inc.
 

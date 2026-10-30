@@ -3,7 +3,7 @@ import * as Keychain from 'react-native-keychain';
 import { db, schema } from '../db';
 import type { CredentialVault } from '../services/operations/types';
 
-const service = (auraId: string) => `io.github.lackofmorals.auramobile.instance-password.${auraId}`;
+const service = (auraId: string) => `io.github.lackofmorals.jax.instance-password.${auraId}`;
 
 /**
  * Instance passwords, one Keychain item each. Aura shows a password once, so it is stored the moment it arrives. Reading it

@@ -23,7 +23,7 @@ export function LicensesScreen() {
       keyExtractor={e => e.name}
       ListHeaderComponent={
         <Text style={{ color: c.muted }}>
-          Aura Mobile is licensed under the Apache License 2.0. It is built on the open-source components below, each under its own licence.
+          Jax is licensed under the Apache License 2.0. It is built on the open-source components below, each under its own licence.
         </Text>
       }
       renderItem={({ item }) => {

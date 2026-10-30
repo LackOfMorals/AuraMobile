@@ -1,9 +1,11 @@
-# Aura Mobile privacy policy
+# Jax privacy policy
 
 _Last updated: 30 October 2026_
 
-Aura Mobile is an independent app for viewing and managing your own Neo4j Aura account from your phone. It is not affiliated
+Jax is an independent app for viewing and managing your own Neo4j Aura account from your phone. It is not affiliated
 with, or endorsed by, Neo4j. Neo4j and Aura are trademarks of Neo4j, Inc.
+
+Jax falls under the same terms as [Neo4j Labs projects](https://neo4j.com/labs/#disclaimer).
 
 **In short: the app has no server of its own, collects nothing about you, and has no analytics, advertising or tracking.**
 
@@ -24,9 +26,9 @@ The app talks to one service only: **Aura's own API at `api.neo4j.io`**. It send
 
 - your client ID and secret, to obtain a short-lived access token;
 - requests to read your projects and instances, and, only when you confirm a change, to pause, resume, edit, create or delete an instance;
-- a `User-Agent` header naming the app, the operating system and the app version (for example `AuraMobile/ios/0.1.0`).
+- a `User-Agent` header naming the app, the operating system and the app version (for example `Jax/ios/0.1.0`).
 
-Neo4j handles that data under its own terms and privacy policy. **Nothing is sent to the developer of Aura Mobile or to any other party.**
+Neo4j handles that data under its own terms and privacy policy. **Nothing is sent to the developer of Jax or to any other party.**
 The app contains no analytics, crash-reporting, advertising or other third-party services.
 
 ## Demo mode

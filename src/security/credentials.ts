@@ -1,7 +1,7 @@
 import * as Keychain from 'react-native-keychain';
 import type { AuraCredentials } from '../aura/types';
 
-const SERVICE = 'io.github.lackofmorals.auramobile.aura-credentials';
+const SERVICE = 'io.github.lackofmorals.jax.aura-credentials';
 
 // Readable while the device is unlocked, without a prompt per read: the client needs the
 // secret for every token refresh, and the app lock already guards getting this far.

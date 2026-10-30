@@ -1,14 +1,13 @@
-# App Store submission: Aura Mobile
+# App Store submission: Jax
 
 Everything App Store Connect asks for, with answers that match what the app does. Items marked **YOU** need your Apple account or a
 decision only you can make. The rest is ready.
 
 ## 0. Before you start: two decisions
 
-1. **The name.** "Aura" is Neo4j's product name. Apple's review guideline 5.2 (intellectual property) lets Apple ask for proof that you may use
-   another company's name or marks in an app's name, subtitle or keywords. If you have Neo4j's permission, keep "Aura Mobile" and say so in the
-   review notes. If not, a name that does not use their mark, with a subtitle such as "Manage Neo4j Aura databases" (a plain description), is the
-   safer route. The app itself already says it is unofficial.
+1. **The name.** The app is called "Jax", which does not use Neo4j's mark. Keep "Neo4j" and "Aura" out of the name, subtitle and keywords
+   (guideline 5.2). Describing what it does in the description is fine ("manage Neo4j Aura databases"), and the app says it is unofficial.
+   Check that "Jax" is free in App Store Connect when you create the record, since names are unique across the store.
 2. **The version number.** The app is `0.1.0`. A store release is usually `1.0.0`. To change it, edit `version` in `package.json` and
    `MARKETING_VERSION` (two places in `ios/AuraMobile.xcodeproj/project.pbxproj`) and `versionName` in `android/app/build.gradle`. A test fails
    if they disagree.
@@ -26,9 +25,9 @@ App Store Connect, Apps, **+ New App**:
 | Field | Value |
 | --- | --- |
 | Platform | iOS |
-| Name | Aura Mobile (see decision 1) |
+| Name | Jax (see decision 1; must be available in App Store Connect) |
 | Primary language | English (UK) or English (US) |
-| Bundle ID | `io.github.lackofmorals.auramobile` (choose it from the list: it is registered by building with your team) |
+| Bundle ID | `io.github.lackofmorals.jax` (choose it from the list: it is registered by building with your team) |
 | SKU | `auramobile` (any unique text) |
 
 ## 3. App information
@@ -58,7 +57,7 @@ App Store Connect, Apps, **+ New App**:
 
 **Description**
 
-> Aura Mobile is an independent app for looking after your own Neo4j Aura databases from your phone.
+> Jax is an independent app for looking after your own Neo4j Aura databases from your phone.
 >
 > • Find any instance fast: search by name, filter by tenant, cloud, tier and status, and sort the way you like.
 > • See each instance at a glance: its status, size, region, tier and connection URL, with one tap to copy.
@@ -70,7 +69,8 @@ App Store Connect, Apps, **+ New App**:
 >
 > You need Aura API credentials (created in the Aura console) to connect your account.
 >
-> Aura Mobile is not affiliated with, or endorsed by, Neo4j. Neo4j and Aura are trademarks of Neo4j, Inc.
+> Jax is not affiliated with, or endorsed by, Neo4j. Neo4j and Aura are trademarks of Neo4j, Inc.
+> Jax falls under the same terms as Neo4j Labs projects (https://neo4j.com/labs/#disclaimer): it is experimental and provided without warranties or support.
 
 **Keywords (100 characters, comma-separated):** `graph,database,cloud,instance,admin,devops,manager,cypher,knowledge graph,dba`
 (Left out on purpose: the name "neo4j", because Apple may treat another company's mark in keywords as a problem. See decision 1.)
@@ -130,7 +130,7 @@ Each upload needs a new build number: raise `CURRENT_PROJECT_VERSION` in the pro
 ## Checks to run on the TestFlight build
 
 - Lock: Face ID unlocks; cancelling leaves the app locked; failing Face ID offers the passcode; leaving the app for more than 30 seconds locks it.
-- App switcher: the card for the app shows "Aura Mobile" and no instance names.
+- App switcher: the card for the app shows "Jax" and no instance names.
 - Demo: Try the demo, then pause, resume, rename, create a Free instance and delete it.
 - Live (read-only first): connect, sync, browse. Then switch on "Allow changes" and pause and resume a disposable instance.
 - Disconnect and clear data returns to the first screen, and a stored instance password is gone.

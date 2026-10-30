@@ -8,14 +8,14 @@ const read = (path: string) => readFileSync(new URL(`../../${path}`, `file://${_
 
 describe('USER_AGENT', () => {
   it('is the app name, the mobile OS and the version, in that order', () => {
-    expect(userAgentFor('ios', '0.1.0')).toBe('AuraMobile/ios/0.1.0');
-    expect(userAgentFor('android', '1.2.3')).toBe('AuraMobile/android/1.2.3');
+    expect(userAgentFor('ios', '0.1.0')).toBe('Jax/ios/0.1.0');
+    expect(userAgentFor('android', '1.2.3')).toBe('Jax/android/1.2.3');
     expect(APP_NAME).not.toContain(' ');
   });
 
   it('uses the platform this runs on and the version in package.json', () => {
-    expect(USER_AGENT).toBe(`AuraMobile/${Platform.OS}/${version}`);
-    expect(USER_AGENT).toMatch(/^AuraMobile\/(ios|android)\/\d+\.\d+\.\d+$/);
+    expect(USER_AGENT).toBe(`Jax/${Platform.OS}/${version}`);
+    expect(USER_AGENT).toMatch(/^Jax\/(ios|android)\/\d+\.\d+\.\d+$/);
   });
 
   it('matches the version in the iOS project, so the App Store build and the header agree', () => {

@@ -1,10 +1,10 @@
 import { Platform } from 'react-native';
 import { version } from '../../package.json';
 
-/** One word, no spaces: a User-Agent product token. The display name is "Aura Mobile". */
-export const APP_NAME = 'AuraMobile';
+/** One word, no spaces: a User-Agent product token. The display name is "Jax". */
+export const APP_NAME = 'Jax';
 
-/** App name, mobile OS, then version: `AuraMobile/ios/0.1.0`. */
+/** App name, mobile OS, then version: `Jax/ios/0.1.0`. */
 export const userAgentFor = (os: string, appVersion: string): string => `${APP_NAME}/${os}/${appVersion}`;
 
 /**

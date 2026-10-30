@@ -47,7 +47,7 @@ class SceneDelegate: RCTDefaultReactNativeFactoryDelegate, UIWindowSceneDelegate
     cover.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     cover.backgroundColor = .systemBackground
     let title = UILabel()
-    title.text = "Aura Mobile"
+    title.text = "Jax"
     title.font = .systemFont(ofSize: 28, weight: .bold)
     title.textColor = .label
     title.sizeToFit()

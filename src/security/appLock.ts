@@ -1,6 +1,6 @@
 import * as Keychain from 'react-native-keychain';
 
-const SERVICE = 'io.github.lackofmorals.auramobile.applock';
+const SERVICE = 'io.github.lackofmorals.jax.applock';
 const SENTINEL = 'unlocked';
 
 export type UnlockResult =
@@ -39,7 +39,7 @@ export async function unlock(): Promise<UnlockResult> {
   try {
     const item = await Keychain.getGenericPassword({
       ...options,
-      authenticationPrompt: { title: 'Unlock Aura Mobile', cancel: 'Cancel' },
+      authenticationPrompt: { title: 'Unlock Jax', cancel: 'Cancel' },
     });
     return item && item.password === SENTINEL
       ? { ok: true }

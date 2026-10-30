@@ -13,7 +13,7 @@ const RELOCK_AFTER_MS = 30_000;
 
 const MESSAGES = {
   'no-screen-lock':
-    'Set a device passcode in Settings to use Aura Mobile. Your Aura credentials are protected by it.',
+    'Set a device passcode in Settings to use Jax. Your Aura credentials are protected by it.',
   cancelled: 'Authentication was cancelled.',
   failed: 'Authentication failed. Try again.',
 } as const;
@@ -50,7 +50,7 @@ export function LockGate({ children }: { children: ReactNode }) {
 
   return (
     <View style={[styles.screen, dark ? styles.dark : styles.light]}>
-      <Text style={[styles.title, dark && styles.textDark]}>Aura Mobile</Text>
+      <Text style={[styles.title, dark && styles.textDark]}>Jax</Text>
       {failure && (
         <Text style={[styles.message, dark && styles.textDark]}>
           {MESSAGES[failure]}
