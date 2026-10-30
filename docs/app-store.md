@@ -9,14 +9,14 @@ decision only you can make. The rest is ready.
    (guideline 5.2). Describing what it does in the description is fine ("manage Neo4j Aura databases"), and the app says it is unofficial.
    Check that "Jax" is free in App Store Connect when you create the record, since names are unique across the store.
 2. **The version number.** The app is `0.1.0`. A store release is usually `1.0.0`. To change it, edit `version` in `package.json` and
-   `MARKETING_VERSION` (two places in `ios/AuraMobile.xcodeproj/project.pbxproj`) and `versionName` in `android/app/build.gradle`. A test fails
+   `MARKETING_VERSION` (two places in `ios/JaxMobile.xcodeproj/project.pbxproj`) and `versionName` in `android/app/build.gradle`. A test fails
    if they disagree.
 
 ## 1. Privacy policy and support page (done once the repository is public)
 
 - The privacy policy is `PRIVACY.md` in this repository. Once the repository is public it is served at
-  `https://github.com/LackOfMorals/AuraMobile/blob/main/PRIVACY.md`. Use that as the **Privacy Policy URL** in App Store Connect.
-- The **Support URL** is the repository's Issues page: `https://github.com/LackOfMorals/AuraMobile/issues`.
+  `https://github.com/LackOfMorals/JaxMobile/blob/main/PRIVACY.md`. Use that as the **Privacy Policy URL** in App Store Connect.
+- The **Support URL** is the repository's Issues page: `https://github.com/LackOfMorals/JaxMobile/issues`.
 - Both addresses are in `src/legal/links.ts`, so the app links to the policy from Account. If the repository is renamed, update them before the next release.
 - The contact in the policy is GitHub Issues, so no personal email address is published.
 
@@ -30,7 +30,7 @@ App Store Connect, Apps, **+ New App**:
 | Name | Jax (see decision 1; must be available in App Store Connect) |
 | Primary language | English (UK) or English (US) |
 | Bundle ID | `io.github.lackofmorals.jax` (choose it from the list: it is registered by building with your team) |
-| SKU | `auramobile` (any unique text) |
+| SKU | `jaxmobile` (any unique text) |
 
 ## 3. App information
 
@@ -49,7 +49,7 @@ App Store Connect, Apps, **+ New App**:
   your behalf.
 - **Tracking: No.**
 - **Privacy policy URL:** from step 1.
-- The app's privacy manifest (`ios/AuraMobile/PrivacyInfo.xcprivacy`) already declares no tracking and no collected data types.
+- The app's privacy manifest (`ios/JaxMobile/PrivacyInfo.xcprivacy`) already declares no tracking and no collected data types.
 
 ## 5. Version page
 
@@ -116,7 +116,7 @@ Take each with the side button and volume up together, then AirDrop them to your
 In Xcode (`xed -b ios`, with your team selected under Signing & Capabilities):
 
 1. Choose **Any iOS Device (arm64)** as the destination.
-2. **Product, Archive.** (From the command line this already succeeds: `xcodebuild -workspace ios/AuraMobile.xcworkspace -scheme AuraMobile -configuration Release -destination 'generic/platform=iOS' archive -allowProvisioningUpdates`.)
+2. **Product, Archive.** (From the command line this already succeeds: `xcodebuild -workspace ios/JaxMobile.xcworkspace -scheme JaxMobile -configuration Release -destination 'generic/platform=iOS' archive -allowProvisioningUpdates`.)
 3. In the Organizer, **Distribute App, App Store Connect, Upload.** Xcode creates the distribution certificate and App Store profile in your
    developer account the first time. Leave automatic signing on.
 4. Wait for the build to finish processing (a few minutes, and you get an email), then select it on the version page.

@@ -19,7 +19,7 @@ describe('USER_AGENT', () => {
   });
 
   it('matches the version in the iOS project, so the App Store build and the header agree', () => {
-    const versions = [...read('ios/AuraMobile.xcodeproj/project.pbxproj').matchAll(/MARKETING_VERSION = ([^;]+);/g)].map(m => m[1]);
+    const versions = [...read('ios/JaxMobile.xcodeproj/project.pbxproj').matchAll(/MARKETING_VERSION = ([^;]+);/g)].map(m => m[1]);
     expect(versions.length).toBeGreaterThan(0);
     for (const v of versions) {
       expect(v).toBe(version);

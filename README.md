@@ -18,6 +18,8 @@ It is **not affiliated with, or endorsed by, Neo4j.** Neo4j and Aura are tradema
 
 The sync, planning and Aura-client logic is adapted from [grandstack-web-aura](https://github.com/grand-stack/grandstack-web-aura), Apache-2.0.
 
+AI coding agents and tools: read [AGENTS.md](AGENTS.md) before changing anything, and see [llms.txt](llms.txt) for a short, linked summary of the project.
+
 ## Requirements
 
 macOS with Xcode, Node 22 or later, Ruby (for CocoaPods), Watchman. An Apple Developer account to run on a device or ship.

@@ -31,7 +31,7 @@ class SceneDelegate: RCTDefaultReactNativeFactoryDelegate, UIWindowSceneDelegate
     #endif
     
     reactNativeFactory?.startReactNative(
-      withModuleName: "AuraMobile",
+      withModuleName: "JaxMobile",
       in: window,
       connectionOptions: connectionOptions
     )

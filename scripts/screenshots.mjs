@@ -81,10 +81,10 @@ async function ensureMetro() {
 }
 
 const derived = join(root, 'ios/build/screenshots');
-const appPath = join(derived, 'Build/Products/Debug-iphonesimulator/AuraMobile.app');
+const appPath = join(derived, 'Build/Products/Debug-iphonesimulator/JaxMobile.app');
 function build() {
   console.log('Building the Debug app for the simulator…');
-  run('xcodebuild', ['-workspace', 'ios/AuraMobile.xcworkspace', '-scheme', 'AuraMobile', '-configuration', 'Debug', '-sdk', 'iphonesimulator', '-derivedDataPath', derived, 'build', '-quiet'], { cwd: root, maxBuffer: 1 << 28 });
+  run('xcodebuild', ['-workspace', 'ios/JaxMobile.xcworkspace', '-scheme', 'JaxMobile', '-configuration', 'Debug', '-sdk', 'iphonesimulator', '-derivedDataPath', derived, 'build', '-quiet'], { cwd: root, maxBuffer: 1 << 28 });
 }
 
 const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);

@@ -1,0 +1,30 @@
+# Jax
+
+> Jax is an independent, local-first iOS app (React Native, TypeScript) for managing your own Neo4j Aura instances from your phone: browse, pause, resume, edit, create and delete, with every change reviewed and confirmed first. It talks only to Aura's own API, keeps secrets in the iOS Keychain, and has no server, analytics or tracking. It is not affiliated with or endorsed by Neo4j, and falls under the Neo4j Labs terms: experimental, no warranties or support, not for production use.
+
+Notes for AI assistants:
+- To change the code, read AGENTS.md first. It lists the rules, commands and domain rules that tests enforce.
+- Never ask a user for, or put into code or chat, Aura API credentials. They are entered only in the app's Setup screen and stored in the iOS Keychain.
+- The app is iPhone and iPad (iOS first). Android has not started.
+- Aura, AuraDB and Neo4j are trademarks of Neo4j, Inc. The app is named Jax for that reason.
+
+## For people building or changing the app
+
+- [AGENTS.md](https://github.com/LackOfMorals/JaxMobile/blob/main/AGENTS.md): rules, commands, where things are, domain rules, deliberate oddities, shipping
+- [README](https://github.com/LackOfMorals/JaxMobile/blob/main/README.md): requirements, how to run and check it
+- [Accessibility](https://github.com/LackOfMorals/JaxMobile/blob/main/docs/accessibility.md): what Apple's guidelines ask for text size, colour and touch targets, and how Jax measures up
+- [App Store notes](https://github.com/LackOfMorals/JaxMobile/blob/main/docs/app-store.md): listing text, review notes, privacy answers and upload steps
+- [Screenshot runner](https://github.com/LackOfMorals/JaxMobile/blob/main/scripts/screenshots.mjs): runs the app on several iPhone and iPad simulators, in light, dark and largest text, and compares with a baseline
+
+## For people using the app
+
+- [Privacy policy](https://github.com/LackOfMorals/JaxMobile/blob/main/PRIVACY.md): what is kept on the device, what is sent to Aura, and nothing else
+- [Support and feedback](https://github.com/LackOfMorals/JaxMobile/issues): open an issue (issues are public, so never include credentials)
+- [Neo4j Labs terms](https://neo4j.com/labs/#disclaimer): the terms this app falls under
+- Try it without an account: choose "Try the demo" on the first screen. Demo mode uses sample data and contacts no service.
+
+## Optional
+
+- [Licence (Apache-2.0)](https://github.com/LackOfMorals/JaxMobile/blob/main/LICENSE)
+- [Notices and attribution](https://github.com/LackOfMorals/JaxMobile/blob/main/NOTICE): the app adapts code from grandstack-web-aura (Apache-2.0)
+- [grandstack-web-aura](https://github.com/grand-stack/grandstack-web-aura): the web console whose logic and interface this app is based on

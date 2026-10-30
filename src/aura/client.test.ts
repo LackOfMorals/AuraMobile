@@ -34,20 +34,20 @@ describe("user agent", () => {
   const header = (call: { init: RequestInit }, name: string) => (call.init.headers as Record<string, string>)[name];
 
   it("is sent on the token request and on every API request, next to the headers each already has", async () => {
-    const { client, calls } = setup([token(), { status: 200, body: { data: [] } }, { status: 202, body: {} }], { userAgent: "AuraMobile/9.9.9" });
+    const { client, calls } = setup([token(), { status: 200, body: { data: [] } }, { status: 202, body: {} }], { userAgent: "Jax/9.9.9" });
     await client.listTenants();
     await client.updateInstance("i", { name: "x" });
     expect(calls).toHaveLength(3);
-    for (const call of calls) expect(header(call, "User-Agent")).toBe("AuraMobile/9.9.9");
+    for (const call of calls) expect(header(call, "User-Agent")).toBe("Jax/9.9.9");
     expect(header(calls[0]!, "Authorization")).toMatch(/^Basic /);
     expect(header(calls[1]!, "Authorization")).toBe("Bearer tok");
     expect(header(calls[2]!, "Content-Type")).toBe("application/json");
   });
 
   it("is sent again on a retry after a rate limit", async () => {
-    const { client, calls } = setup([token(), { status: 429, headers: { "retry-after": "1" } }, { status: 200, body: { data: [] } }], { userAgent: "AuraMobile/9.9.9" });
+    const { client, calls } = setup([token(), { status: 429, headers: { "retry-after": "1" } }, { status: 200, body: { data: [] } }], { userAgent: "Jax/9.9.9" });
     await client.listTenants();
-    expect(calls.every((c) => header(c, "User-Agent") === "AuraMobile/9.9.9")).toBe(true);
+    expect(calls.every((c) => header(c, "User-Agent") === "Jax/9.9.9")).toBe(true);
   });
 
   it("is left out when none is configured, as before", async () => {

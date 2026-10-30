@@ -4,6 +4,7 @@ import { migrate } from './migrations';
 import { withDrizzleCompat } from './opSqliteCompat';
 import * as schema from './schema';
 
+// The file keeps its original name on purpose: renaming it would start every existing install with an empty database.
 const client = open({ name: 'auramobile.db' });
 
 migrate({
