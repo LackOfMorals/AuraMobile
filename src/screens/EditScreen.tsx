@@ -2,6 +2,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { getEditContext } from '../db/queries';
+import { FREE_DELETE_ONLY, isFreeTier } from '../lib/actions';
 import { buildChange, EditForm, formFromInstance, MAX_NAME, nameError, nameLength, sizeKey, VECTOR_MIN_GB, vectorAllowed, vectorProblem } from '../lib/changes';
 import { memoryAndStorage } from '../lib/format';
 import type { RootStackParamList } from '../navigation/types';
@@ -44,6 +45,15 @@ export function EditScreen({ route, navigation }: NativeStackScreenProps<RootSta
   }
 
   const { instance, sizes } = context;
+  if (isFreeTier(instance.tier)) {
+    return (
+      <View style={[styles.screen, styles.content, { backgroundColor: c.bg }]}>
+        <EmptyState title="Free instances cannot be edited">
+          <Text style={{ color: c.muted }}>{FREE_DELETE_ONLY}</Text>
+        </EmptyState>
+      </View>
+    );
+  }
   const problem = nameError(form.name);
   const effectiveMemory = form.size ? form.size.split('|')[0] : instance.memory;
   const vectorOk = vectorAllowed(effectiveMemory);

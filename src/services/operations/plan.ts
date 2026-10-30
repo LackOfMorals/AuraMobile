@@ -1,6 +1,7 @@
 // Copyright (c) "Neo4j"
 // Neo4j Sweden AB [http://neo4j.com]
 import { UserError } from "../errors";
+import { FREE_DELETE_ONLY, isFreeTier } from "../../lib/actions";
 import { VECTOR_RULE, vectorAllowed, vectorProblem } from "../../lib/changes";
 import { describe, type Changes, type Plan } from "./diff";
 import type { CreateRequest, PlannableKind } from "./state";
@@ -26,6 +27,8 @@ export function guardInstance(instance: StoredInstance | null): StoredInstance {
 
 /** The state each kind of change needs the instance to be in, as Aura names it. */
 export function guardKind(kind: PlannableKind, instance: StoredInstance): void {
+  // Free can only be deleted, whatever state it is in
+  if (isFreeTier(instance.tier)) throw new UserError(FREE_DELETE_ONLY);
   if (kind === "PAUSE" && instance.status !== "running") throw new UserError(`Only a running instance can be paused (this one is ${instance.status}).`);
   if (kind === "RESUME" && instance.status !== "paused") throw new UserError(`Only a paused instance can be resumed (this one is ${instance.status}).`);
   if (kind === "UPDATE" && instance.status !== "running") {

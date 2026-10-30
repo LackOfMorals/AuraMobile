@@ -72,6 +72,43 @@ describe("planning", () => {
   });
 });
 
+describe("AuraDB Free", () => {
+  const free = () => setup([storedInstance({ auraId: "free1", tier: "free-db", memory: "1GB", storage: null, vectorOptimized: null, graphAnalyticsPlugin: null })]);
+
+  it.each([
+    ["pause", (s: ReturnType<typeof setup>) => s.service.plan("PAUSE", "free1")],
+    ["resume", (s: ReturnType<typeof setup>) => s.service.plan("RESUME", "free1")],
+    ["edit", (s: ReturnType<typeof setup>) => s.service.plan("UPDATE", "free1", { name: "renamed" })],
+  ])("cannot be %s, and nothing is planned or sent", async (_name, attempt) => {
+    const s = free();
+    const calls = [spy(s.aura, "pauseInstance"), spy(s.aura, "resumeInstance"), spy(s.aura, "updateInstance")];
+    await expect(attempt(s)).rejects.toThrow("AuraDB Free instances can only be deleted.");
+    expect(s.store.operations.size).toBe(0);
+    for (const c of calls) expect(c).not.toHaveBeenCalled();
+  });
+
+  it("refuses a paused Free instance being resumed too, whatever state it is in", async () => {
+    const s = setup([storedInstance({ auraId: "free1", tier: "free-db", status: "paused", statusGroup: "STOPPED" })]);
+    await expect(s.service.plan("RESUME", "free1")).rejects.toThrow(/can only be deleted/);
+  });
+
+  it("can be deleted, with the name typed", async () => {
+    const s = free();
+    const { operationId } = await s.service.planDelete("free1");
+    await expect(s.service.confirm(operationId)).rejects.toThrow(/Type the instance's name/);
+    await s.service.confirm(operationId, "orders-prod");
+    await s.service.idle();
+    expect(op(s, operationId).status).toBe("SUCCEEDED");
+    expect(s.store.instances.get("free1")!.deletedInAuraAt).not.toBeNull();
+  });
+
+  it("does not affect other tiers, or an instance whose tier is not known", async () => {
+    const s = setup([storedInstance(), storedInstance({ auraId: "odd", tier: null })]);
+    await expect(s.service.plan("PAUSE", "d0000001")).resolves.toBeDefined();
+    await expect(s.service.plan("PAUSE", "odd")).resolves.toBeDefined();
+  });
+});
+
 describe("the vector rule in the engine", () => {
   it("refuses to plan vector on at under 8 GB, for an edit and for a create", async () => {
     const s = setup([storedInstance({ memory: "4GB", storage: "16GB", vectorOptimized: false })]);

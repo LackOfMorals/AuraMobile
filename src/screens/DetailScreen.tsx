@@ -12,6 +12,7 @@ import { operations, useChangesAllowed, useSession } from '../state/session';
 import { useDbQuery } from '../state/useDbQuery';
 import { usePullToRefresh } from '../state/usePullToRefresh';
 import { actionsLocked } from '../lib/status';
+import { FREE_DELETE_ONLY, isFreeTier } from '../lib/actions';
 import { Banner, Button } from '../ui';
 import { useColors } from '../theme/colors';
 import { Icon } from '../ui/Icon';
@@ -75,6 +76,7 @@ export function DetailScreen({ route, navigation }: NativeStackScreenProps<RootS
   }
   const i = instance;
   const removed = i.deletedInAuraAt !== null;
+  const free = isFreeTier(i.tier);
 
   async function plan(kind: 'PAUSE' | 'RESUME' | 'DELETE') {
     try {
@@ -108,12 +110,18 @@ export function DetailScreen({ route, navigation }: NativeStackScreenProps<RootS
 
       {!removed && (
         <View style={styles.actions}>
-          {i.status === 'paused' ? (
-            <Button label="Resume" disabled={!allowed || actionsLocked(i.statusGroup)} onPress={() => plan('RESUME')} />
+          {free ? (
+            <Banner tone="info">{FREE_DELETE_ONLY}</Banner>
           ) : (
-            <Button label="Pause" variant="secondary" disabled={!allowed || actionsLocked(i.statusGroup) || i.status !== 'running'} onPress={() => plan('PAUSE')} />
+            <>
+              {i.status === 'paused' ? (
+                <Button label="Resume" disabled={!allowed || actionsLocked(i.statusGroup)} onPress={() => plan('RESUME')} />
+              ) : (
+                <Button label="Pause" variant="secondary" disabled={!allowed || actionsLocked(i.statusGroup) || i.status !== 'running'} onPress={() => plan('PAUSE')} />
+              )}
+              <Button label="Edit" variant="secondary" disabled={!allowed || actionsLocked(i.statusGroup) || i.status !== 'running'} onPress={() => navigation.navigate('Edit', { auraId: i.auraId })} />
+            </>
           )}
-          <Button label="Edit" variant="secondary" disabled={!allowed || actionsLocked(i.statusGroup) || i.status !== 'running'} onPress={() => navigation.navigate('Edit', { auraId: i.auraId })} />
           <Button label="Delete" variant="danger" disabled={!allowed || actionsLocked(i.statusGroup)} onPress={() => plan('DELETE')} />
           {!allowed && <Banner tone="info">Changes are switched off for this account. Turn on "Allow changes" in the Account tab.</Banner>}
           {allowed && actionsLocked(i.statusGroup) && <Banner tone="info">Aura is working on this instance. Wait for it to finish.</Banner>}
