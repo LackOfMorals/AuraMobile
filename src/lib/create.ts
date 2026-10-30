@@ -60,7 +60,7 @@ const TIER_LABELS: Record<string, string> = {
 export const tierName = (type: string): string => TIER_LABELS[type] ?? type;
 
 const TIER_ORDER = ["free-db", "professional-db", "business-critical", "enterprise-db", "professional-ds", "enterprise-ds"];
-const tierRank = (t: string) => (TIER_ORDER.includes(t) ? TIER_ORDER.indexOf(t) : TIER_ORDER.length);
+export const tierRank = (t: string) => (TIER_ORDER.includes(t) ? TIER_ORDER.indexOf(t) : TIER_ORDER.length);
 
 const unique = <T>(items: T[]): T[] => [...new Set(items)];
 

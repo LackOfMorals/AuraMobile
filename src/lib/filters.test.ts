@@ -97,13 +97,14 @@ describe("facetCounts", () => {
 });
 
 describe("sortInstances", () => {
-  const i = (name: string, over: Partial<{ createdAt: string | null; statusGroup: "READY" | "STOPPED" | "IN_PROGRESS" | "FAILED"; memory: string | null }> = {}) => ({
-    name, createdAt: null, statusGroup: "READY" as const, memory: null, ...over,
+  const i = (name: string, over: Partial<{ createdAt: string | null; statusGroup: "READY" | "STOPPED" | "IN_PROGRESS" | "FAILED"; memory: string | null; tier: string | null }> = {}) => ({
+    name, createdAt: null, statusGroup: "READY" as const, memory: null, tier: null, ...over,
   });
   const names = (xs: { name: string }[]) => xs.map((x) => x.name);
 
-  it("offers four sorts", () => {
-    expect(SORTS.map((s) => s.key)).toEqual(["name", "newest", "status", "memory"]);
+  it("offers name, status and tier first, then newest and largest, with plain labels", () => {
+    expect(SORTS.map((s) => s.key)).toEqual(["name", "status", "tier", "newest", "memory"]);
+    expect(SORTS.map((s) => s.label).join(" ").toLowerCase()).not.toContain("attention");
   });
 
   it("sorts by name, numbers as numbers and case ignored", () => {
@@ -115,9 +116,17 @@ describe("sortInstances", () => {
     expect(names(sortInstances(list, "newest"))).toEqual(["new", "old", "none-a", "none-b"]);
   });
 
-  it("puts what needs attention first: failed, in progress, stopped, then ready", () => {
-    const list = [i("a-ready"), i("b-stopped", { statusGroup: "STOPPED" }), i("c-progress", { statusGroup: "IN_PROGRESS" }), i("d-failed", { statusGroup: "FAILED" }), i("e-ready")];
-    expect(names(sortInstances(list, "status"))).toEqual(["d-failed", "c-progress", "b-stopped", "a-ready", "e-ready"]);
+  it("sorts by status in the order an instance moves through: running, changing, stopped, failed, then by name", () => {
+    const list = [i("d-failed", { statusGroup: "FAILED" }), i("b-stopped", { statusGroup: "STOPPED" }), i("e-ready"), i("c-progress", { statusGroup: "IN_PROGRESS" }), i("a-ready")];
+    expect(names(sortInstances(list, "status"))).toEqual(["a-ready", "e-ready", "c-progress", "b-stopped", "d-failed"]);
+  });
+
+  it("sorts by tier, Free first and the most capable last, then by name, with no tier last", () => {
+    const list = [
+      i("e", { tier: "enterprise-db" }), i("p-b", { tier: "professional-db" }), i("none"), i("f", { tier: "free-db" }),
+      i("b", { tier: "business-critical" }), i("p-a", { tier: "professional-db" }), i("odd", { tier: "future-db" }),
+    ];
+    expect(names(sortInstances(list, "tier"))).toEqual(["f", "p-a", "p-b", "b", "e", "odd", "none"]);
   });
 
   it("sorts memory as a number, largest first (16 GB is bigger than 2 GB), with no memory last", () => {

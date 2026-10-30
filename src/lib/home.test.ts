@@ -1,5 +1,5 @@
 import { cloudLabel } from "./format";
-import { ATTENTION_GROUPS, HomeInstance, summarize } from "./home";
+import { HomeInstance, summarize } from "./home";
 
 const inst = (name: string, over: Partial<HomeInstance> = {}): HomeInstance => ({
   name, tenantId: "t1", cloudProvider: "gcp", tier: "professional-db", statusGroup: "READY", deletedInAuraAt: null, ...over,
@@ -16,7 +16,7 @@ describe("summarize", () => {
 
   it("leaves out instances Aura no longer lists", () => {
     expect(s.total).toBe(6);
-    expect([...s.attention, ...s.running].some((i) => i.name === "gone")).toBe(false);
+    expect(s.running.some((i) => i.name === "gone")).toBe(false);
   });
 
   it("counts tags, biggest first, with readable labels", () => {
@@ -29,9 +29,9 @@ describe("summarize", () => {
     expect(summarize([inst("a", { tenantId: "unknown" })], names, cloudLabel).tenants[0]!.label).toBe("unknown");
   });
 
-  it("puts what needs attention first: failed, in progress, then stopped", () => {
-    expect(s.attention.map((i) => i.name)).toEqual(["failed", "busy", "off"]);
-    for (const i of s.attention) expect(ATTENTION_GROUPS).toContain(i.statusGroup);
+  it("has no grouping for instances that are not running: they are found through the instance list", () => {
+    expect(Object.keys(s).sort()).toEqual(["clouds", "running", "tenants", "tiers", "total"]);
+    expect(s.total).toBe(6); // failed, changing and stopped instances still count
   });
 
   it("lists only ready instances as running, by name", () => {
@@ -39,6 +39,6 @@ describe("summarize", () => {
   });
 
   it("handles no instances", () => {
-    expect(summarize([], names, cloudLabel)).toEqual({ total: 0, tenants: [], clouds: [], tiers: [], attention: [], running: [] });
+    expect(summarize([], names, cloudLabel)).toEqual({ total: 0, tenants: [], clouds: [], tiers: [], running: [] });
   });
 });

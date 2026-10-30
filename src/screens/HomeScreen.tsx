@@ -118,7 +118,6 @@ export function HomeScreen() {
         )}
         {summary && (
           <>
-            <Row title="Needs attention" items={summary.attention} onSeeAll={() => browse({ statuses: ['FAILED', 'IN_PROGRESS', 'STOPPED'] })} onOpen={open} />
             <Row title="Running" items={summary.running} onSeeAll={() => browse({ statuses: ['READY'] })} onOpen={open} />
           </>
         )}

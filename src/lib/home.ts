@@ -1,6 +1,5 @@
 import { tierName } from "./create";
 import { sortInstances, type Filterable } from "./filters";
-import type { InstanceStatusGroup } from "../domain/types";
 
 export interface Tag {
   /** The value to filter by: a tenant id, a cloud or a tier type. */
@@ -14,14 +13,10 @@ export interface HomeSummary<T extends HomeInstance = HomeInstance> {
   tenants: Tag[];
   clouds: Tag[];
   tiers: Tag[];
-  attention: T[];
   running: T[];
 }
 
 export type HomeInstance = Filterable & { createdAt?: string | null; memory?: string | null };
-
-/** The statuses that "Needs attention" gathers: anything not simply running. */
-export const ATTENTION_GROUPS: InstanceStatusGroup[] = ["FAILED", "IN_PROGRESS", "STOPPED"];
 
 function tags(counts: Map<string, number>, label: (value: string) => string): Tag[] {
   return [...counts]
@@ -52,7 +47,6 @@ export function summarize<T extends HomeInstance>(instances: readonly T[], tenan
     tenants: tags(tenants, (id) => tenantNames.get(id) ?? id),
     clouds: tags(clouds, cloudLabel),
     tiers: tags(tiers, tierName),
-    attention: sortInstances(live.filter((i) => ATTENTION_GROUPS.includes(i.statusGroup)), "status"),
     running: sortInstances(live.filter((i) => i.statusGroup === "READY"), "name"),
   };
 }

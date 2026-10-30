@@ -76,9 +76,10 @@ export function DetailScreen({ route, navigation }: NativeStackScreenProps<RootS
   const i = instance;
   const removed = i.deletedInAuraAt !== null;
 
-  async function plan(kind: 'PAUSE' | 'RESUME') {
+  async function plan(kind: 'PAUSE' | 'RESUME' | 'DELETE') {
     try {
-      const { operationId } = await operations().plan(kind, i.auraId);
+      // Planning sends nothing to Aura. A delete is only sent after the name is typed on the next screen.
+      const { operationId } = kind === 'DELETE' ? await operations().planDelete(i.auraId) : await operations().plan(kind, i.auraId);
       navigation.navigate('Operation', { operationId });
     } catch (e) {
       Alert.alert('Cannot plan this change', e instanceof UserError ? e.message : 'Something went wrong.');
@@ -113,6 +114,7 @@ export function DetailScreen({ route, navigation }: NativeStackScreenProps<RootS
             <Button label="Pause" variant="secondary" disabled={!allowed || actionsLocked(i.statusGroup) || i.status !== 'running'} onPress={() => plan('PAUSE')} />
           )}
           <Button label="Edit" variant="secondary" disabled={!allowed || actionsLocked(i.statusGroup) || i.status !== 'running'} onPress={() => navigation.navigate('Edit', { auraId: i.auraId })} />
+          <Button label="Delete" variant="danger" disabled={!allowed || actionsLocked(i.statusGroup)} onPress={() => plan('DELETE')} />
           {!allowed && <Banner tone="info">Changes are switched off for this account. Turn on "Allow changes" in the Account tab.</Banner>}
           {allowed && actionsLocked(i.statusGroup) && <Banner tone="info">Aura is working on this instance. Wait for it to finish.</Banner>}
         </View>

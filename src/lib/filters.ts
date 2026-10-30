@@ -2,14 +2,16 @@
 // Neo4j Sweden AB [http://neo4j.com]
 // Adapted from grandstack-web-aura: filters run in memory over the stored instances instead of building a GraphQL where.
 import type { InstanceStatusGroup } from "../domain/types";
+import { tierRank } from "./create";
 import { gigabytes } from "./format";
 
-export type SortKey = "name" | "newest" | "status" | "memory";
+export type SortKey = "name" | "status" | "tier" | "newest" | "memory";
 
 export const SORTS: { key: SortKey; label: string }[] = [
   { key: "name", label: "Name A to Z" },
+  { key: "status", label: "Status" },
+  { key: "tier", label: "Tier" },
   { key: "newest", label: "Newest first" },
-  { key: "status", label: "Needs attention first" },
   { key: "memory", label: "Largest first" },
 ];
 
@@ -111,13 +113,15 @@ export function facetCounts(items: readonly Filterable[], f: Filters, facet: Fac
   return counts;
 }
 
-const ATTENTION_RANK: Record<InstanceStatusGroup, number> = { FAILED: 0, IN_PROGRESS: 1, STOPPED: 2, READY: 3 };
+/** Status sorts by group, in the order an instance normally moves through: running, changing, stopped, failed. */
+const STATUS_RANK: Record<InstanceStatusGroup, number> = { READY: 0, IN_PROGRESS: 1, STOPPED: 2, FAILED: 3 };
 
 interface Sortable {
   name: string;
   createdAt?: string | null;
   statusGroup: InstanceStatusGroup;
   memory?: string | null;
+  tier?: string | null;
 }
 
 const byName = (a: Sortable, b: Sortable) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" });
@@ -134,7 +138,10 @@ export function sortInstances<T extends Sortable>(items: readonly T[], key: Sort
     case "newest":
       return copy.sort((a, b) => (Date.parse(b.createdAt ?? "") || 0) - (Date.parse(a.createdAt ?? "") || 0) || byName(a, b));
     case "status":
-      return copy.sort((a, b) => ATTENTION_RANK[a.statusGroup] - ATTENTION_RANK[b.statusGroup] || byName(a, b));
+      return copy.sort((a, b) => STATUS_RANK[a.statusGroup] - STATUS_RANK[b.statusGroup] || byName(a, b));
+    case "tier":
+      // An instance with no tier sorts last
+      return copy.sort((a, b) => (a.tier ? tierRank(a.tier) : Infinity) - (b.tier ? tierRank(b.tier) : Infinity) || byName(a, b));
     case "memory":
       return copy.sort((a, b) => {
         const [x, y] = [gigabytes(a.memory), gigabytes(b.memory)];
