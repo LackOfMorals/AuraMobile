@@ -16,7 +16,7 @@ import { FREE_DELETE_ONLY, isFreeTier } from '../lib/actions';
 import { Banner, Button } from '../ui';
 import { useColors } from '../theme/colors';
 import { Icon } from '../ui/Icon';
-import { Poster } from '../ui/InstanceCard';
+import { TierStripe } from '../ui/TierStripe';
 import { PasswordField } from '../ui/PasswordField';
 import { StatusChip } from '../ui/StatusChip';
 import { EmptyState } from '../ui/parts';
@@ -97,7 +97,7 @@ export function DetailScreen({ route, navigation }: NativeStackScreenProps<RootS
 
   return (
     <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={styles.content} refreshControl={refreshControl}>
-      <Poster name={i.name} cloud={i.cloudProvider} tier={i.tier} size={{ width: 160, height: 120 }} />
+      <TierStripe tier={i.tier} />
       <Text accessibilityRole="header" style={[styles.name, { color: c.text }]}>{i.name}</Text>
       {removed ? <StatusChip label="Removed from Aura" tone="neutral" /> : <StatusChip status={i.status} />}
 
