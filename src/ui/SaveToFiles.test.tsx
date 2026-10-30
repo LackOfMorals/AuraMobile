@@ -101,4 +101,17 @@ describe('SaveToFiles', () => {
     expect(text(r)).toContain('nothing was saved');
     expect(text(r)).not.toContain('Saved as');
   });
+
+  it('is disabled while the instance is being created, so nothing can be opened or unlocked', async () => {
+    const { deps, calls } = fakeDeps();
+    let r!: ReactTestRenderer.ReactTestRenderer;
+    await ReactTestRenderer.act(async () => {
+      r = ReactTestRenderer.create(<SaveToFiles instance={instance} deps={deps} disabled />);
+    });
+    const button = r.root.findAll(n => typeof n.props.onPress === 'function' && textOf(n) === 'Save to Files')[0]!;
+    expect(button.props.disabled).toBe(true);
+    await press(r, 'Save to Files');
+    expect(text(r)).not.toContain(WARNING_TITLE);
+    expect(calls).toEqual([]);
+  });
 });

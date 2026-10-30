@@ -2,7 +2,8 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Alert } from 'react-native';
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../ui/Text';
 import { activeOperationFor, getInstance, tenantNames } from '../db/queries';
 import { tierName } from '../lib/create';
 import { cloudLabel, formatDate, relativeTime, size } from '../lib/format';
@@ -78,6 +79,9 @@ export function DetailScreen({ route, navigation }: NativeStackScreenProps<RootS
   }
   const i = instance;
   const removed = i.deletedInAuraAt !== null;
+  // Aura shows the password when it creates the instance, but the instance cannot be connected to until it is ready
+  const creating = i.status === 'creating';
+  const showPassword = i.hasStoredPassword && !removed;
   const free = isFreeTier(i.tier);
 
   async function plan(kind: 'PAUSE' | 'RESUME' | 'DELETE') {
@@ -130,24 +134,28 @@ export function DetailScreen({ route, navigation }: NativeStackScreenProps<RootS
         </View>
       )}
 
-      {i.connectionUrl && (
+      {(i.connectionUrl || showPassword) && (
         <Card title="Connection">
-          <Text selectable style={{ color: c.text }}>{i.connectionUrl}</Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={copied ? 'Copied' : 'Copy connection URL'}
-            onPress={copyUrl}
-            style={[styles.copy, { borderColor: c.primary }]}>
-            <Icon name={copied ? 'check' : 'copy'} size={18} color={c.primary} />
-            <Text style={{ color: c.primary, fontWeight: '600' }}>{copied ? 'Copied' : 'Copy URL'}</Text>
-          </Pressable>
-        </Card>
-      )}
-
-      {i.hasStoredPassword && !removed && (
-        <Card title="Password">
-          <PasswordField auraId={i.auraId} />
-          <SaveToFiles instance={{ auraId: i.auraId, name: i.name, connectionUrl: i.connectionUrl }} startOpen={__DEV__ && route.params.devOpenExport === true} />
+          {i.connectionUrl && (
+            <>
+              <Text selectable style={{ color: c.text }}>{i.connectionUrl}</Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={copied ? 'Copied' : 'Copy connection URL'}
+                onPress={copyUrl}
+                style={[styles.copy, { borderColor: c.primary }]}>
+                <Icon name={copied ? 'check' : 'copy'} size={18} color={c.primary} />
+                <Text style={{ color: c.primary, fontWeight: '600' }}>{copied ? 'Copied' : 'Copy URL'}</Text>
+              </Pressable>
+            </>
+          )}
+          {showPassword && (
+            <>
+              <PasswordField auraId={i.auraId} disabled={creating} />
+              <SaveToFiles instance={{ auraId: i.auraId, name: i.name, connectionUrl: i.connectionUrl }} disabled={creating} startOpen={__DEV__ && route.params.devOpenExport === true} />
+              {creating && <Text style={{ color: c.muted }}>Available once the instance has been created.</Text>}
+            </>
+          )}
         </Card>
       )}
 
@@ -188,5 +196,5 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 18, fontWeight: '700' },
   fact: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
   factValue: { flexShrink: 1, textAlign: 'right', fontWeight: '500' },
-  copy: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, alignSelf: 'flex-start' },
+  copy: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, alignSelf: 'stretch', justifyContent: 'center' },
 });

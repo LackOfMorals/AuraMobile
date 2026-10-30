@@ -13,7 +13,7 @@ export const HIDE_AFTER_MS = 30_000;
  * Shows an instance's stored password only after Face ID or the passcode, then hides it again: after 30 seconds,
  * and at once if the app leaves the foreground. The password is never kept in state longer than it is shown.
  */
-export function PasswordField({ auraId }: { auraId: string }) {
+export function PasswordField({ auraId, disabled = false }: { auraId: string; disabled?: boolean }) {
   const c = useColors();
   const [creds, setCreds] = useState<{ username: string; password: string } | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -37,6 +37,9 @@ export function PasswordField({ auraId }: { auraId: string }) {
   }, []);
 
   async function show() {
+    if (disabled) {
+      return;
+    }
     setMessage(null);
     const found = await instanceVault.reveal(auraId);
     if (!found) {
@@ -51,7 +54,7 @@ export function PasswordField({ auraId }: { auraId: string }) {
   if (!creds) {
     return (
       <View style={styles.box}>
-        <Button label="Show password" variant="secondary" onPress={show} />
+        <Button label="Show password" variant="secondary" disabled={disabled} onPress={show} />
         {message ? <Text style={{ color: c.muted }}>{message}</Text> : null}
       </View>
     );

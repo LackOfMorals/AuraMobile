@@ -108,7 +108,7 @@ Take each with the side button and volume up together, then AirDrop them to your
 >
 > Live mode needs a Neo4j Aura API client ID and secret, which reviewers do not need. It connects only to Neo4j's own API at api.neo4j.io.
 >
-> To try "Save to Files": in the demo, create an instance (the demo returns a password, which the app stores), open it, and under Password tap "Save to Files". After a
+> To try "Save to Files": in the demo, create an instance (the demo returns a password, which the app stores), open it, and in the Connection card tap "Save to Files". After a
 > warning and Face ID or the passcode, the standard iOS save sheet opens so you can choose where to put a text file with that instance's connection details. It is a
 > user-started export of the user's own database credentials, like the download Aura's console offers. The app never sends the file anywhere or keeps a copy.
 >

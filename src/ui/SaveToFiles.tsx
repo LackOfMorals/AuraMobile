@@ -27,7 +27,7 @@ export const ICLOUD_OFF_TEXT = 'iCloud is not signed in on this iPhone, so a fil
  * sheet, where the person chooses the place, for example iCloud Drive so a developer can pick the file up on a Mac.
  * It shows nothing where the build cannot save to Files.
  */
-export function SaveToFiles({ instance, startOpen = false, deps = realDeps }: { instance: ExportInstance; startOpen?: boolean; deps?: ExportDeps }) {
+export function SaveToFiles({ instance, startOpen = false, disabled = false, deps = realDeps }: { instance: ExportInstance; startOpen?: boolean; disabled?: boolean; deps?: ExportDeps }) {
   const c = useColors();
   const [open, setOpen] = useState(startOpen);
   const [icloud, setIcloud] = useState<boolean | null>(null);
@@ -57,7 +57,7 @@ export function SaveToFiles({ instance, startOpen = false, deps = realDeps }: { 
 
   return (
     <View style={styles.box}>
-      <Button label={busy ? 'Saving…' : 'Save to Files'} variant="secondary" disabled={busy} onPress={() => setOpen(true)} />
+      <Button label={busy ? 'Saving…' : 'Save to Files'} variant="secondary" disabled={busy || disabled} onPress={() => !disabled && setOpen(true)} />
       {outcome?.kind === 'saved' && (
         <Banner tone="info">{`Saved${outcome.name ? ` as ${outcome.name}` : ''}. In iCloud Drive it usually reaches your Mac within a minute. Delete the file when you no longer need it.`}</Banner>
       )}
