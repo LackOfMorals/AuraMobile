@@ -45,6 +45,8 @@ export interface AuraClientOptions {
   /** Called when a token is needed, so the secret is read as late as possible and never kept here. */
   credentials: () => Promise<AuraCredentials>;
   fetch?: typeof fetch;
+  /** Sent as the User-Agent on every request, including the token request, so Aura can tell this app and version apart. */
+  userAgent?: string;
   sleep?: (ms: number) => Promise<void>;
   now?: () => number;
   /** Retries after a 429 or a 5xx, per request. Default 4. */
@@ -148,8 +150,9 @@ export class AuraClient implements AuraApi {
   }
 
   private async send(url: string, init: RequestInit): Promise<Response> {
+    const { userAgent } = this.options;
     try {
-      return await this.fetchImpl(url, init);
+      return await this.fetchImpl(url, userAgent ? { ...init, headers: { ...(init.headers as Record<string, string>), "User-Agent": userAgent } } : init);
     } catch {
       // Not the error itself: it can carry the address, and never anything the person needs to see
       throw new AuraUnreachableError();

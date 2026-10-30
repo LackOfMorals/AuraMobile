@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { create } from 'zustand';
 import { AuraAuthError, AuraClient, AuraUnreachableError } from '../aura/client';
+import { USER_AGENT } from '../aura/userAgent';
 import { MockAura } from '../aura/mock';
 import type { AuraApi, AuraCredentials } from '../aura/types';
 import { db, schema } from '../db';
@@ -21,7 +22,7 @@ let aura: AuraApi | undefined;
 
 /** The data source for the current mode: the real client, or the in-memory demo. */
 export function getAura(mode: Mode): AuraApi {
-  aura ??= mode === 'demo' ? new MockAura() : new AuraClient({ baseUrl: BASE_URL, credentials: loadCredentials });
+  aura ??= mode === 'demo' ? new MockAura() : new AuraClient({ baseUrl: BASE_URL, credentials: loadCredentials, userAgent: USER_AGENT });
   return aura;
 }
 
@@ -118,7 +119,7 @@ export const useSession = create<SessionState>((set, get) => ({
   /** Returns an error message, or null once the credentials are checked and stored. */
   connect: async credentials => {
     try {
-      await new AuraClient({ baseUrl: BASE_URL, credentials: async () => credentials }).checkCredentials();
+      await new AuraClient({ baseUrl: BASE_URL, credentials: async () => credentials, userAgent: USER_AGENT }).checkCredentials();
       await saveCredentials(credentials);
       await writeAccount('Aura account', maskClientId(credentials.clientId));
       aura = undefined;
