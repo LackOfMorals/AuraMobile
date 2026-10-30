@@ -1,6 +1,7 @@
 export type RootStackParamList = {
   Main: undefined;
   Detail: { auraId: string };
+  Create: undefined;
   Edit: { auraId: string };
   Operation: { operationId: string };
 };

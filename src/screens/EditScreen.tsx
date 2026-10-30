@@ -2,7 +2,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { getEditContext } from '../db/queries';
-import { buildChange, EditForm, formFromInstance, MAX_NAME, nameError, nameLength, sizeKey } from '../lib/changes';
+import { buildChange, EditForm, formFromInstance, MAX_NAME, nameError, nameLength, sizeKey, VECTOR_MIN_GB, vectorAllowed, vectorProblem } from '../lib/changes';
 import { memoryAndStorage } from '../lib/format';
 import type { RootStackParamList } from '../navigation/types';
 import { UserError } from '../services/errors';
@@ -10,7 +10,7 @@ import { operations, useChangesAllowed } from '../state/session';
 import { useDbQuery } from '../state/useDbQuery';
 import { useColors } from '../theme/colors';
 import { Banner, Button } from '../ui';
-import { Option } from '../ui/FilterSheet';
+import { Dropdown } from '../ui/Dropdown';
 import { EmptyState } from '../ui/parts';
 
 /** Rename, resize, and the two switches. Only what changed is planned, and nothing is sent until the review is confirmed. */
@@ -45,6 +45,9 @@ export function EditScreen({ route, navigation }: NativeStackScreenProps<RootSta
 
   const { instance, sizes } = context;
   const problem = nameError(form.name);
+  const effectiveMemory = form.size ? form.size.split('|')[0] : instance.memory;
+  const vectorOk = vectorAllowed(effectiveMemory);
+  const vectorIssue = vectorProblem(instance, change.input);
   const patch = (p: Partial<EditForm>) => setForm({ ...form, ...p });
 
   async function review() {
@@ -73,21 +76,28 @@ export function EditScreen({ route, navigation }: NativeStackScreenProps<RootSta
       />
       <Text style={{ color: problem ? c.danger : c.muted }}>{problem ?? `${nameLength(form.name)} of ${MAX_NAME} characters`}</Text>
 
-      <Text style={[styles.label, { color: c.text }]}>Size</Text>
       {sizes.length === 0 ? (
-        <Text style={{ color: c.muted }}>This tier has no other sizes to choose from.</Text>
+        <>
+          <Text style={[styles.label, { color: c.text }]}>Size</Text>
+          <Text style={{ color: c.muted }}>This tier has no other sizes to choose from.</Text>
+        </>
       ) : (
-        sizes.map(s => (
-          <Option key={sizeKey(s)} radio label={memoryAndStorage(s.memory, s.storage)} checked={form.size === sizeKey(s)} onPress={() => patch({ size: sizeKey(s) })} />
-        ))
+        <Dropdown
+          label="Size"
+          value={form.size}
+          options={sizes.map(s => ({ value: sizeKey(s), label: memoryAndStorage(s.memory, s.storage) }))}
+          onChange={size => patch({ size })}
+        />
       )}
 
       {instance.vectorOptimized !== null && (
         <View style={styles.switchRow}>
           <Text style={[styles.switchLabel, { color: c.text }]}>Vector optimised</Text>
-          <Switch accessibilityLabel="Vector optimised" value={form.vectorOptimized ?? false} onValueChange={v => patch({ vectorOptimized: v })} />
+          <Switch accessibilityLabel="Vector optimised" disabled={!vectorOk && !form.vectorOptimized} value={form.vectorOptimized ?? false} onValueChange={v => patch({ vectorOptimized: v })} />
         </View>
       )}
+      {vectorIssue && <Text style={{ color: c.danger }}>{vectorIssue}</Text>}
+      {instance.vectorOptimized !== null && !vectorOk && !vectorIssue && <Text style={{ color: c.muted }}>Vector optimisation needs {VECTOR_MIN_GB} GB or more of memory.</Text>}
       {instance.graphAnalyticsPlugin !== null && (
         <View style={styles.switchRow}>
           <Text style={[styles.switchLabel, { color: c.text }]}>Graph analytics plugin</Text>
@@ -95,7 +105,7 @@ export function EditScreen({ route, navigation }: NativeStackScreenProps<RootSta
         </View>
       )}
 
-      <Button label={busy ? 'Planning…' : 'Review changes'} disabled={busy || !change.changed || problem !== undefined} onPress={review} />
+      <Button label={busy ? 'Planning…' : 'Review changes'} disabled={busy || !change.changed || problem !== undefined || vectorIssue !== undefined} onPress={review} />
       {!change.changed && <Text style={{ color: c.muted }}>Change something to review it. Nothing is sent to Aura until you confirm.</Text>}
     </ScrollView>
   );

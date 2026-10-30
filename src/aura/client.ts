@@ -8,6 +8,8 @@ export interface Problem {
   message: string;
   reason?: string;
   field?: string;
+  /** Anything else Aura put in the error entry, shortened. Only ever about the request we sent. */
+  detail?: string;
 }
 
 /** Aura answered with an error status. `problems` is what its error body said, which is safe to show. */
@@ -250,11 +252,24 @@ export function retryAfterMs(res: Response, now: number): number | undefined {
   return Number.isNaN(date) ? undefined : Math.max(1000, date - now);
 }
 
+const short = (value: unknown): string | undefined => {
+  const text = typeof value === "string" ? value : JSON.stringify(value);
+  return text && text !== "{}" ? text.slice(0, 300) : undefined;
+};
+
 async function readProblems(res: Response): Promise<Problem[]> {
   try {
-    const body = (await res.json()) as { errors?: Problem[]; error?: string };
-    if (Array.isArray(body.errors)) return body.errors.map((e) => ({ message: String(e.message), reason: e.reason, field: e.field }));
+    const body = (await res.json()) as { errors?: (Problem & Record<string, unknown>)[]; error?: string };
+    if (Array.isArray(body.errors)) {
+      return body.errors.map((e) => {
+        const { message, reason, field, ...rest } = e;
+        return { message: String(message), reason, field, detail: short(rest) };
+      });
+    }
     if (typeof body.error === "string") return [{ message: body.error }];
+    // An error shape we do not know: keep what it said, shortened, so the person can report it
+    const detail = short(body);
+    if (detail) return [{ message: res.statusText || "Unknown error", detail }];
   } catch {
     // not JSON: fall through
   }

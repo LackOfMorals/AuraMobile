@@ -3,18 +3,20 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Alert } from 'react-native';
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { getInstance, tenantNames } from '../db/queries';
+import { activeOperationFor, getInstance, tenantNames } from '../db/queries';
 import { tierName } from '../lib/create';
 import { cloudLabel, formatDate, memoryAndStorage, relativeTime } from '../lib/format';
 import type { RootStackParamList } from '../navigation/types';
 import { UserError } from '../services/errors';
-import { operations, useChangesAllowed } from '../state/session';
+import { operations, useChangesAllowed, useSession } from '../state/session';
 import { useDbQuery } from '../state/useDbQuery';
+import { usePullToRefresh } from '../state/usePullToRefresh';
 import { actionsLocked } from '../lib/status';
 import { Banner, Button } from '../ui';
 import { useColors } from '../theme/colors';
 import { Icon } from '../ui/Icon';
 import { Poster } from '../ui/InstanceCard';
+import { PasswordField } from '../ui/PasswordField';
 import { StatusChip } from '../ui/StatusChip';
 import { EmptyState } from '../ui/parts';
 
@@ -49,7 +51,11 @@ export function DetailScreen({ route, navigation }: NativeStackScreenProps<RootS
   const query = useCallback(() => getInstance(auraId), [auraId]);
   const instance = useDbQuery(query);
   const names = useDbQuery(tenantNames);
+  const activeQuery = useCallback(() => activeOperationFor(auraId), [auraId]);
+  const activeOperation = useDbQuery(activeQuery);
   const allowed = useChangesAllowed();
+  const refreshOne = useSession(s => s.refreshOne);
+  const refreshControl = usePullToRefresh(useCallback(() => refreshOne(auraId), [refreshOne, auraId]));
   const [copied, setCopied] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -87,10 +93,17 @@ export function DetailScreen({ route, navigation }: NativeStackScreenProps<RootS
   }
 
   return (
-    <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={styles.content}>
+    <ScrollView style={{ backgroundColor: c.bg }} contentContainerStyle={styles.content} refreshControl={refreshControl}>
       <Poster name={i.name} cloud={i.cloudProvider} tier={i.tier} size={{ width: 160, height: 120 }} />
       <Text accessibilityRole="header" style={[styles.name, { color: c.text }]}>{i.name}</Text>
       {removed ? <StatusChip label="Removed from Aura" tone="neutral" /> : <StatusChip status={i.status} />}
+
+      {activeOperation && (
+        <View style={styles.actions}>
+          <Banner tone="info">A change is in progress. This page updates by itself as Aura reports each stage.</Banner>
+          <Button label="View progress" variant="secondary" onPress={() => navigation.navigate('Operation', { operationId: activeOperation })} />
+        </View>
+      )}
 
       {!removed && (
         <View style={styles.actions}>
@@ -116,6 +129,12 @@ export function DetailScreen({ route, navigation }: NativeStackScreenProps<RootS
             <Icon name={copied ? 'check' : 'copy'} size={18} color={c.primary} />
             <Text style={{ color: c.primary, fontWeight: '600' }}>{copied ? 'Copied' : 'Copy URL'}</Text>
           </Pressable>
+        </Card>
+      )}
+
+      {i.hasStoredPassword && !removed && (
+        <Card title="Password">
+          <PasswordField auraId={i.auraId} />
         </Card>
       )}
 

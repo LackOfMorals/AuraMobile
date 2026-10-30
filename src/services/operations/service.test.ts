@@ -4,7 +4,7 @@ import { UserError } from "../errors";
 import { OperationService } from "./service";
 import { FakeVault, MemoryOperationStore, storedInstance } from "./testing";
 
-function setup(instances = [storedInstance()], opts: { timeoutMs?: number } = {}) {
+function setup(instances = [storedInstance()], opts: { timeoutMs?: number; onProgress?: () => void } = {}) {
   const aura = new MockAura();
   const store = new MemoryOperationStore(instances);
   const vault = new FakeVault();
@@ -20,6 +20,7 @@ function setup(instances = [storedInstance()], opts: { timeoutMs?: number } = {}
     },
     pollDelayMs: () => 400,
     timeoutMs: opts.timeoutMs ?? 60_000,
+    onProgress: opts.onProgress,
   });
   return { aura, store, vault, service };
 }
@@ -60,14 +61,34 @@ describe("planning", () => {
 
   it("plans an edit with only what differs, and refuses an empty or unoffered one", async () => {
     const s = setup();
-    const { operationId } = await s.service.plan("UPDATE", "d0000001", { name: " renamed ", memory: "4GB", storage: "16GB", vectorOptimized: true });
-    expect(op(s, operationId).desired.changes).toEqual({ name: "renamed", memory: "4GB", storage: "16GB" }); // vector already on: not sent
+    const { operationId } = await s.service.plan("UPDATE", "d0000001", { name: " renamed ", memory: "4GB", storage: "16GB", vectorOptimized: false, graphAnalyticsPlugin: false });
+    expect(op(s, operationId).desired.changes).toEqual({ name: "renamed", memory: "4GB", storage: "16GB", vectorOptimized: false }); // analytics already off: not sent
     expect(op(s, operationId).plan.warnings[0]).toMatch(/smaller size/);
     await expect(s.service.plan("UPDATE", "d0000001", { name: "orders-prod" })).rejects.toThrow("Nothing would change.");
     await expect(s.service.plan("UPDATE", "d0000001", { memory: "64GB", storage: "1GB" })).rejects.toThrow(/not offered/);
     await expect(s.service.plan("UPDATE", "d0000001", { memory: "4GB" })).rejects.toThrow(/chosen together/);
     await expect(s.service.plan("UPDATE", "d0000001", { name: "  " })).rejects.toThrow(/cannot be empty/);
     await expect(s.service.plan("UPDATE", "d0000001", { name: "x".repeat(31) })).rejects.toThrow(/at most 30/);
+  });
+});
+
+describe("the vector rule in the engine", () => {
+  it("refuses to plan vector on at under 8 GB, for an edit and for a create", async () => {
+    const s = setup([storedInstance({ memory: "4GB", storage: "16GB", vectorOptimized: false })]);
+    await expect(s.service.plan("UPDATE", "d0000001", { vectorOptimized: true })).rejects.toThrow(/8 GB or more of memory/);
+    await expect(s.service.planCreate({ tenantId: "demo-tenant-1", cloudProvider: "aws", region: "eu-west-1", type: "professional-db", memory: "4GB", name: "x", vectorOptimized: true })).rejects.toThrow(/8 GB or more of memory/);
+  });
+
+  it("refuses shrinking under 8 GB while vector stays on, but allows it if vector is turned off too", async () => {
+    const s = setup();
+    await expect(s.service.plan("UPDATE", "d0000001", { memory: "4GB", storage: "16GB" })).rejects.toThrow(/Turn vector optimisation off/);
+    const { operationId } = await s.service.plan("UPDATE", "d0000001", { memory: "4GB", storage: "16GB", vectorOptimized: false });
+    expect(op(s, operationId).desired.changes).toMatchObject({ memory: "4GB", vectorOptimized: false });
+  });
+
+  it("allows vector at 8 GB", async () => {
+    const s = setup([storedInstance({ vectorOptimized: false })]);
+    await expect(s.service.plan("UPDATE", "d0000001", { vectorOptimized: true })).resolves.toBeDefined();
   });
 });
 
@@ -150,6 +171,57 @@ describe("confirming and running", () => {
     await s.service.confirm(second.operationId);
     await expect(s.service.cancel(second.operationId)).rejects.toThrow(/already been sent/);
     await s.service.idle();
+  });
+});
+
+describe("watching Aura while it works", () => {
+  it("saves each status Aura reports as it reports it, and tells the screens each time", async () => {
+    const seen: string[] = [];
+    let store!: MemoryOperationStore;
+    const s = setup([storedInstance()], { onProgress: () => seen.push(store.instances.get("d0000001")!.status) });
+    store = s.store;
+    const { operationId } = await s.service.plan("PAUSE", "d0000001");
+    await s.service.confirm(operationId);
+    await s.service.idle();
+    expect(seen).toEqual(["pausing", "paused"]);
+    expect(op(s, operationId).status).toBe("SUCCEEDED");
+  });
+
+  it("shows a created instance as creating, then running, while it waits", async () => {
+    const seen: string[] = [];
+    let store!: MemoryOperationStore;
+    const s = setup([storedInstance()], { onProgress: () => seen.push(store.instances.get("d0000005")!.status) });
+    store = s.store;
+    const { operationId } = await s.service.planCreate({ tenantId: "demo-tenant-1", cloudProvider: "aws", region: "eu-west-1", type: "professional-db", memory: "4GB", name: "fresh" });
+    await s.service.confirm(operationId);
+    await s.service.idle();
+    expect(seen).toEqual(["creating", "running"]);
+  });
+
+  it("carries on, and still finishes, if saving a status fails along the way", async () => {
+    const s = setup();
+    const real = s.store.refreshInstance.bind(s.store);
+    let first = true;
+    s.store.refreshInstance = async (d, at) => {
+      if (first) {
+        first = false;
+        throw new Error("disk busy");
+      }
+      return real(d, at);
+    };
+    const { operationId } = await s.service.plan("PAUSE", "d0000001");
+    await s.service.confirm(operationId);
+    await s.service.idle();
+    expect(op(s, operationId).status).toBe("SUCCEEDED");
+    expect(s.store.instances.get("d0000001")!.status).toBe("paused");
+  });
+
+  it("looks every few seconds at first, and never waits longer than ten", () => {
+    const { defaultPollDelay } = jest.requireActual("./run");
+    expect(defaultPollDelay(0)).toBe(3000);
+    expect(defaultPollDelay(1)).toBe(4200);
+    expect(defaultPollDelay(5)).toBe(10_000);
+    expect(defaultPollDelay(50)).toBe(10_000);
   });
 });
 
@@ -281,6 +353,47 @@ describe("create", () => {
     expect(s.vault.calls).toEqual(["save:d0000005", "link:d0000005"]);
     expect(s.vault.passwords.get("d0000005")).toBe("demo-password-shown-once");
     expect((await s.store.loadInstance("d0000005"))!.status).toBe("running");
+  });
+
+  it("creates AuraDB Free from the built-in offer: GCP europe-west1, 1 GB, no storage, even though no configuration lists it", async () => {
+    const s = setup();
+    expect(s.store.offered.some((o) => o.type === "free-db")).toBe(false);
+    const create = spy(s.aura, "createInstance");
+    const { operationId } = await s.service.planCreate({ tenantId: "demo-tenant-1", cloudProvider: "gcp", region: "europe-west1", type: "free-db", memory: "1GB", storage: "", name: "free-one" });
+    expect(op(s, operationId).plan.items.map((i) => i.label)).not.toContain("Storage");
+    await s.service.confirm(operationId);
+    await s.service.idle();
+    expect(create.mock.calls[0]![0]).toEqual({ version: "5", region: "europe-west1", memory: "1GB", name: "free-one", type: "free-db", tenant_id: "demo-tenant-1", cloud_provider: "gcp" });
+    expect(op(s, operationId).status).toBe("SUCCEEDED");
+  });
+
+  it("refuses a second Free instance, and does not contact Aura", async () => {
+    const s = setup([storedInstance({ auraId: "free1", tier: "free-db", memory: "1GB", storage: null })]);
+    const create = spy(s.aura, "createInstance");
+    await expect(s.service.planCreate({ tenantId: "demo-tenant-1", cloudProvider: "gcp", region: "europe-west1", type: "free-db", memory: "1GB", storage: "", name: "second" })).rejects.toThrow(/not offered/);
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it("allows Free again once the old Free instance is gone from Aura", async () => {
+    const s = setup([storedInstance({ auraId: "free1", tier: "free-db", memory: "1GB", storage: null, deletedInAuraAt: "2026-01-01T00:00:00Z" })]);
+    await expect(s.service.planCreate({ tenantId: "demo-tenant-1", cloudProvider: "gcp", region: "europe-west1", type: "free-db", memory: "1GB", storage: "", name: "again" })).resolves.toBeDefined();
+  });
+
+  it("shows every field Aura says is wrong when it refuses a create", async () => {
+    const s = setup();
+    s.aura.createInstance = async () => {
+      throw new AuraApiError(400, [
+        { message: "request body contains validation errors" },
+        { message: "must be one of the offered sizes", field: "memory", reason: "invalid-value", detail: '{"allowed":["4GB"]}' },
+      ]);
+    };
+    const { operationId } = await s.service.planCreate(input);
+    await s.service.confirm(operationId);
+    await s.service.idle();
+    expect(op(s, operationId).status).toBe("FAILED");
+    expect(op(s, operationId).error).toContain("field: memory");
+    expect(op(s, operationId).error).toContain("reason: invalid-value");
+    expect(op(s, operationId).error).toContain('{"allowed":["4GB"]}');
   });
 
   it("fails loudly, naming the instance, if the password cannot be stored", async () => {

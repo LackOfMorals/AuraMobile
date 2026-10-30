@@ -69,6 +69,9 @@ export class MemoryOperationStore implements OperationStore {
   async loadTenantName(tenantId: string) {
     return this.tenants.get(tenantId) ?? null;
   }
+  async hasFreeInstance() {
+    return [...this.instances.values()].some((i) => i.tier === "free-db" && i.deletedInAuraAt === null);
+  }
   async holdingOperations(auraId: string) {
     return [...this.operations.values()].filter((o) => o.targetId === auraId && (o.status === "CONFIRMED" || o.status === "RUNNING")).map((o) => ({ id: o.id, status: o.status }));
   }

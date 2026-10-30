@@ -5,6 +5,7 @@ import { lastSyncedAt } from '../db/queries';
 import { relativeTime } from '../lib/format';
 import { useSession } from '../state/session';
 import { useDbQuery } from '../state/useDbQuery';
+import { usePullToRefresh } from '../state/usePullToRefresh';
 import { useColors } from '../theme/colors';
 import { Banner, Button } from '../ui';
 
@@ -16,6 +17,7 @@ export function AccountScreen() {
   const { mode, syncing, lastResult, syncNow, disconnect, allowChanges, setAllowChanges } = useSession();
   const row = useDbQuery(account);
   const synced = useDbQuery(lastSyncedAt);
+  const refreshControl = usePullToRefresh();
 
   function confirmDisconnect() {
     Alert.alert('Disconnect and clear data?', 'This removes your Aura credentials and the stored copy of your account from this device. Nothing changes in Aura.', [
@@ -26,7 +28,7 @@ export function AccountScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={[styles.screen, { backgroundColor: c.bg }]}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} refreshControl={refreshControl}>
         <Text accessibilityRole="header" style={[styles.title, { color: c.text }]}>Aura account</Text>
         <View style={[styles.card, { backgroundColor: c.card, borderColor: c.border }]}>
           <Text style={{ color: c.muted }}>Mode</Text>

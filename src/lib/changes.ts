@@ -146,3 +146,26 @@ export function elapsed(startIso: string | null | undefined, endIso: string | nu
   const two = (n: number) => String(n).padStart(2, "0");
   return h > 0 ? `${h}:${two(m)}:${two(s)}` : `${two(m)}:${two(s)}`;
 }
+
+/** Vector optimisation needs at least this much memory. */
+export const VECTOR_MIN_GB = 8;
+
+/** Whether vector optimisation can be on at this memory size. A size in a format we do not know is never blocked. */
+export function vectorAllowed(memory: string | null | undefined): boolean {
+  const g = gigabytes(memory);
+  return Number.isNaN(g) || g >= VECTOR_MIN_GB;
+}
+
+export const VECTOR_RULE = `Vector optimisation needs ${VECTOR_MIN_GB} GB or more of memory.`;
+
+/**
+ * What is wrong with a change to vector optimisation or memory, or undefined when it is fine. Only a change that touches one of
+ * the two is checked, so renaming an instance that already breaks the rule is never blocked.
+ */
+export function vectorProblem(current: { memory: string | null; vectorOptimized: boolean | null }, changes: { memory?: string; vectorOptimized?: boolean }): string | undefined {
+  const touches = changes.vectorOptimized === true || changes.memory !== undefined;
+  const memory = changes.memory ?? current.memory;
+  const vector = changes.vectorOptimized ?? current.vectorOptimized;
+  if (!touches || vector !== true || vectorAllowed(memory)) return undefined;
+  return changes.memory !== undefined && changes.vectorOptimized === undefined ? `${VECTOR_RULE} Turn vector optimisation off before choosing a smaller size.` : VECTOR_RULE;
+}

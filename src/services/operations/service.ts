@@ -3,7 +3,9 @@
 import { AuraApiError } from "../../aura/client";
 import type { AuraApi } from "../../aura/types";
 import { UserError } from "../errors";
+import { withFreeTier } from "../../lib/create";
 import { describeCreate, describeDelete, sameSnapshot, type Changes, type Snapshot } from "./diff";
+import type { OfferedConfiguration } from "./plan";
 import { buildPlan, guardDelete, guardInstance, guardKind, normaliseChanges, normaliseCreate, type ChangeInput, type CreateInput } from "./plan";
 import { createSteps, defaultPollDelay, expectation, runOperation, type RunDeps } from "./run";
 import type { OperationKind, OperationStatus, PlannableKind } from "./state";
@@ -31,6 +33,8 @@ export interface OperationServiceOptions {
   timeoutMs?: number;
   /** Called whenever an operation this service started ends, so screens can read the new state. */
   onFinished?: (operationId: string) => void;
+  /** Called each time the stored copy of the instance changed while an operation waits on Aura. */
+  onProgress?: (operationId: string) => void;
 }
 
 const TRANSITIONAL: Record<OperationKind, string> = { UPDATE: "updating", PAUSE: "pausing", RESUME: "resuming", CREATE: "creating", DELETE: "destroying" };
@@ -59,7 +63,13 @@ export class OperationService {
       sleep: this.o.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms))),
       pollDelayMs: this.o.pollDelayMs ?? defaultPollDelay,
       timeoutMs: this.o.timeoutMs ?? 30 * 60_000,
+      onProgress: this.o.onProgress,
     };
+  }
+
+  /** What a tenant can create: its configurations, plus AuraDB Free (which they never list) unless the account has one. */
+  private async offered(tenantId: string): Promise<OfferedConfiguration[]> {
+    return withFreeTier(await this.o.store.loadOffered(tenantId), await this.o.store.hasFreeInstance());
   }
 
   async plan(kind: PlannableKind, instanceId: string, input: ChangeInput = {}): Promise<{ operationId: string }> {
@@ -104,7 +114,7 @@ export class OperationService {
   async planCreate(input: CreateInput): Promise<{ operationId: string }> {
     const tenantName = await this.o.store.loadTenantName(input.tenantId);
     if (tenantName === null) throw new UserError("That tenant is not in the store. Sync, then try again.");
-    const request = normaliseCreate(input, tenantName, await this.o.store.loadOffered(input.tenantId));
+    const request = normaliseCreate(input, tenantName, await (await this.offered(input.tenantId)));
     const operationId = await this.o.store.createOperation({
       kind: "CREATE",
       desired: { kind: "CREATE", create: request },
@@ -135,7 +145,7 @@ export class OperationService {
       if (kind === "CREATE") {
         const request = op.desired.create!;
         // What was offered when it was planned may have changed with a sync
-        const offered = await this.o.store.loadOffered(request.tenantId);
+        const offered = await (await this.offered(request.tenantId));
         normaliseCreate({ ...request, tenantId: request.tenantId }, request.tenantName, offered);
       } else {
         const instance = guardInstance(await this.o.store.loadInstance(target));

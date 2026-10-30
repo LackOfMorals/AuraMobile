@@ -1,6 +1,7 @@
 // Copyright (c) "Neo4j"
 // Neo4j Sweden AB [http://neo4j.com]
 import { UserError } from "../errors";
+import { VECTOR_RULE, vectorAllowed, vectorProblem } from "../../lib/changes";
 import { describe, type Changes, type Plan } from "./diff";
 import type { CreateRequest, PlannableKind } from "./state";
 import type { StoredInstance } from "./types";
@@ -70,6 +71,8 @@ export function normaliseChanges(instance: StoredInstance, input: ChangeInput, s
   if (changes.vectorOptimized !== undefined && changes.vectorOptimized !== instance.vectorOptimized) differing.vectorOptimized = changes.vectorOptimized;
   if (changes.graphAnalyticsPlugin !== undefined && changes.graphAnalyticsPlugin !== instance.graphAnalyticsPlugin) differing.graphAnalyticsPlugin = changes.graphAnalyticsPlugin;
   if (Object.keys(differing).length === 0) throw new UserError("Nothing would change.");
+  const problem = vectorProblem(instance, differing);
+  if (problem) throw new UserError(problem);
   return differing;
 }
 
@@ -121,6 +124,7 @@ export function normaliseCreate(input: CreateInput, tenantName: string, offered:
       (input.storage === undefined || input.storage === null || c.storage === input.storage),
   );
   if (!match) throw new UserError("That combination of cloud, region, tier and size is not offered for this tenant.");
+  if (input.vectorOptimized === true && !vectorAllowed(match.memory)) throw new UserError(VECTOR_RULE);
   return {
     tenantId: input.tenantId,
     tenantName,

@@ -16,12 +16,14 @@ export interface RunDeps {
   pollDelayMs: (attempt: number) => number;
   /** Stop waiting after this long. The change may still finish; the next sync will show it. */
   timeoutMs: number;
+  /** Called each time the stored copy of the instance was brought up to date while waiting, so screens can show it live. */
+  onProgress?: (operationId: string) => void;
 }
 
 const iso = (d: Date) => d.toISOString();
 
 /** Waits that start short and grow, so a quick change is noticed quickly and a slow one is not hammered. */
-export const defaultPollDelay = (attempt: number): number => Math.min(15_000, Math.round(3000 * 1.4 ** attempt));
+export const defaultPollDelay = (attempt: number): number => Math.min(10_000, Math.round(3000 * 1.4 ** attempt));
 
 /** The change to send, what the instance must look like afterwards, and how to tell. */
 interface Expectation {
@@ -48,7 +50,8 @@ export function toAuraCreate(r: CreateRequest): InstanceCreate {
     version: r.version,
     region: r.region,
     memory: r.memory,
-    storage: r.storage,
+    // Aura's spec has no storage for AuraDB Free: its example leaves it out
+    ...(r.type !== "free-db" && r.storage ? { storage: r.storage } : {}),
     name: r.name,
     type: r.type,
     tenant_id: r.tenantId,
@@ -91,7 +94,11 @@ export function explainFailure(err: unknown, phase: "sending" | "waiting"): stri
     if (err.status === 404) return "Aura no longer has this instance.";
     if (err.status === 429) return "Aura is limiting requests right now. Try again in a minute.";
     if (err.status === 401 || err.status === 403) return "Aura rejected the stored client id and secret. Replace the credentials, then plan the change again.";
-    if (err.status === 400) return `Aura refused the change${said ? `: ${said}` : "."}`;
+    if (err.status === 400) {
+      // Aura often says only "validation errors" in the first message and names the fields in the rest
+      const all = err.problems.slice(0, 4).map((p) => [p.message, p.field ? `field: ${p.field}` : "", p.reason ? `reason: ${p.reason}` : "", p.detail ? `detail: ${p.detail}` : ""].filter(Boolean).join(", "));
+      return `Aura refused the change${all.length ? `: ${all.join("; ")}` : "."}`;
+    }
     return `Aura answered ${err.status}${said ? `: ${said}` : ""}.${phase === "sending" ? " It is not known whether the change was made." : ""}`;
   }
   return "The change stopped because of an unexpected error.";
@@ -185,6 +192,14 @@ export async function runOperation(deps: RunDeps, operationId: string, options: 
         // A bad moment (no connection, a server error) is not the end: look again, and give up only if it keeps happening
         if (++lostContact >= 3) return stop(explainFailure(err instanceof AuraApiError ? err : new AuraUnreachableError(), "waiting"));
         continue;
+      }
+      // Keep the stored copy in step with what Aura says, so screens show "pausing" or "creating" as it happens. Best effort:
+      // the final write below is the one that must succeed.
+      try {
+        await store.refreshInstance(detail, at());
+        deps.onProgress?.(operationId);
+      } catch {
+        // the next look, or the final write, will try again
       }
       if (detail.status !== lastSeen) {
         lastSeen = detail.status;

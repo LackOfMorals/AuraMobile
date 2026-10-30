@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull } from 'drizzle-orm';
 import type { OperationStatus } from '../domain/types';
 import { instanceRow } from '../services/sync';
 import type { OperationStore, StoredInstance, StoredOperation } from '../services/operations/types';
@@ -66,6 +66,15 @@ export function createOperationStore(db: Db): OperationStore {
     async loadTenantName(tenantId) {
       const rows = await db.select().from(schema.tenant).where(eq(schema.tenant.auraId, tenantId));
       return rows[0]?.name ?? null;
+    },
+
+    async hasFreeInstance() {
+      const rows = await db
+        .select({ id: schema.instance.auraId })
+        .from(schema.instance)
+        .where(and(eq(schema.instance.tier, 'free-db'), isNull(schema.instance.deletedInAuraAt)))
+        .limit(1);
+      return rows.length > 0;
     },
 
     async holdingOperations(auraId) {
@@ -170,7 +179,7 @@ export function createOperationStore(db: Db): OperationStore {
             region: r.region,
             tier: r.type,
             memory: r.memory,
-            storage: r.storage,
+            storage: r.storage || null,
             vectorOptimized: r.vectorOptimized,
             graphAnalyticsPlugin: r.graphAnalyticsPlugin,
             secondariesCount: null,

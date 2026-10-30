@@ -10,6 +10,7 @@ import { maskClientId } from '../lib/account';
 import { clearCredentials, hasCredentials, loadCredentials, saveCredentials } from '../security/credentials';
 import { instanceVault } from '../security/instanceVault';
 import { OperationService } from '../services/operations/service';
+import { refreshInstance } from '../services/refreshInstance';
 import { runSync, SyncResult } from '../services/sync';
 import { getAllowChanges, getMode, Mode, setAllowChanges, setMode } from '../storage/settings';
 
@@ -34,6 +35,7 @@ export function operations(): OperationService {
     client: () => getAura(useSession.getState().mode ?? 'demo'),
     isConnected: async () => useSession.getState().mode !== null,
     onFinished: () => useSession.getState().bump(),
+    onProgress: () => useSession.getState().bump(),
   });
   return operationService;
 }
@@ -78,6 +80,8 @@ type SessionState = {
   connect: (credentials: AuraCredentials) => Promise<string | null>;
   startDemo: () => Promise<void>;
   syncNow: () => Promise<SyncResult | null>;
+  /** Reads one instance from Aura. Returns what to tell the person on failure, or null. */
+  refreshOne: (auraId: string) => Promise<string | null>;
   disconnect: () => Promise<void>;
 };
 
@@ -148,6 +152,16 @@ export const useSession = create<SessionState>((set, get) => ({
     } finally {
       set({ syncing: false });
     }
+  },
+
+  refreshOne: async auraId => {
+    const { mode } = get();
+    if (mode === null) {
+      return null;
+    }
+    const failure = await refreshInstance({ aura: getAura(mode), store: createOperationStore(db) }, auraId);
+    get().bump();
+    return failure;
   },
 
   /** Forgets the credentials and clears everything stored on the device. */

@@ -1,4 +1,4 @@
-import { asc, desc } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import { sizeOptions } from '../lib/changes';
 import { operationSubject } from '../lib/operations';
 import type { StoredOperation } from '../services/operations/types';
@@ -77,4 +77,34 @@ export async function getEditContext(auraId: string) {
   }
   const sizes = await createOperationStore(db).loadSizeOptions({ ...instance, vectorOptimized: instance.vectorOptimized, graphAnalyticsPlugin: instance.graphAnalyticsPlugin });
   return { instance, sizes: sizeOptions(sizes) };
+}
+
+/** What the create wizard offers: each tenant, and every combination it is offered. */
+export async function getCreateOptions() {
+  const tenants = (await db.select().from(schema.tenant).orderBy(asc(schema.tenant.name))).map(t => ({ id: t.auraId, name: t.name }));
+  const rows = await db.select().from(schema.instanceConfiguration);
+  const offers = rows.map(r => ({
+    tenantId: r.tenantId,
+    cloudProvider: r.cloudProvider,
+    region: r.region,
+    regionName: r.regionName,
+    type: r.type,
+    memory: r.memory,
+    storage: r.storage,
+    version: r.version,
+  }));
+  // AuraDB Free is limited to one instance, so the wizard stops offering it once the account has one
+  const hasFreeInstance = (await listInstances()).some(i => i.tier === 'free-db' && i.deletedInAuraAt === null);
+  return { tenants, offers, hasFreeInstance };
+}
+
+/** The change that is being carried out on an instance right now, if any: confirmed or running. */
+export async function activeOperationFor(auraId: string): Promise<string | null> {
+  const op = schema.operation;
+  const rows = await db
+    .select({ id: op.id })
+    .from(op)
+    .where(and(eq(op.instanceId, auraId), inArray(op.status, ['CONFIRMED', 'RUNNING'])))
+    .limit(1);
+  return rows[0]?.id ?? null;
 }

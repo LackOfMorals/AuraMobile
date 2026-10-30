@@ -1,6 +1,6 @@
 import Svg, { Circle, Line, Path, Polyline, Rect } from 'react-native-svg';
 
-export type IconName = 'search' | 'filter' | 'x' | 'copy' | 'check' | 'sync' | 'alert' | 'pause' | 'stop' | 'dot' | 'back' | 'home' | 'list' | 'history' | 'person';
+export type IconName = 'search' | 'filter' | 'x' | 'copy' | 'check' | 'sync' | 'alert' | 'pause' | 'stop' | 'dot' | 'back' | 'home' | 'list' | 'history' | 'person' | 'chevron-down';
 
 type Props = { name: IconName; size?: number; color: string };
 
@@ -79,6 +79,8 @@ function shape(name: IconName, color: string) {
       return <Circle cx="12" cy="12" r="5" fill={color} />;
     case 'back':
       return <Polyline points="15 18 9 12 15 6" />;
+    case 'chevron-down':
+      return <Polyline points="6 9 12 15 18 9" />;
     case 'home':
       return (
         <>

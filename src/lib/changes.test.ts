@@ -1,6 +1,6 @@
 // Copyright (c) "Neo4j"
 // Neo4j Sweden AB [http://neo4j.com]
-import { MAX_NAME, buildChange, elapsed, formFromInstance, nameError, nameLength, operationVerb, parsePlan, progressOf, sizeKey, sizeOptions, type EditOriginal, type StepLike } from "./changes";
+import { vectorAllowed, vectorProblem, VECTOR_RULE, MAX_NAME, buildChange, elapsed, formFromInstance, nameError, nameLength, operationVerb, parsePlan, progressOf, sizeKey, sizeOptions, type EditOriginal, type StepLike } from "./changes";
 
 describe("parsePlan", () => {
   it("reads items and warnings", () => {
@@ -147,5 +147,29 @@ describe("elapsed", () => {
     expect(elapsed(start, null, at(-30))).toBe("00:00");
     expect(elapsed(null, null, 0)).toBe("");
     expect(elapsed("garbage", null, 0)).toBe("");
+  });
+});
+
+describe("the vector rule", () => {
+  it("allows vector from 8 GB up, and blocks it below", () => {
+    expect(vectorAllowed("8GB")).toBe(true);
+    expect(vectorAllowed("16GB")).toBe(true);
+    expect(vectorAllowed("4GB")).toBe(false);
+    expect(vectorAllowed("1GB")).toBe(false);
+  });
+  it("never blocks a size it cannot read, or none", () => {
+    expect(vectorAllowed(null)).toBe(true);
+    expect(vectorAllowed("big")).toBe(true);
+  });
+  it("blocks turning vector on at under 8 GB, or shrinking under 8 GB with it on, and says how to fix the second", () => {
+    expect(vectorProblem({ memory: "4GB", vectorOptimized: false }, { vectorOptimized: true })).toBe(VECTOR_RULE);
+    expect(vectorProblem({ memory: "16GB", vectorOptimized: true }, { memory: "4GB" })).toMatch(/Turn vector optimisation off/);
+  });
+  it("allows turning vector off while shrinking, and growing with it on", () => {
+    expect(vectorProblem({ memory: "16GB", vectorOptimized: true }, { memory: "4GB", vectorOptimized: false })).toBeUndefined();
+    expect(vectorProblem({ memory: "4GB", vectorOptimized: false }, { memory: "16GB", vectorOptimized: true })).toBeUndefined();
+  });
+  it("does not block a change that does not touch vector or memory, even on an instance that already breaks the rule", () => {
+    expect(vectorProblem({ memory: "4GB", vectorOptimized: true }, {})).toBeUndefined();
   });
 });

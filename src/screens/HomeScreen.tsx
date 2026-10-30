@@ -10,8 +10,9 @@ import { cloudLabel, plural } from '../lib/format';
 import { summarize, Tag } from '../lib/home';
 import type { RootStackParamList, TabParamList } from '../navigation/types';
 import { useDbQuery } from '../state/useDbQuery';
+import { usePullToRefresh } from '../state/usePullToRefresh';
 import { useFilters } from '../state/filtersStore';
-import { useSession } from '../state/session';
+import { useChangesAllowed, useSession } from '../state/session';
 import { useColors } from '../theme/colors';
 import { Button } from '../ui';
 import { InstanceCard } from '../ui/InstanceCard';
@@ -65,9 +66,11 @@ export function HomeScreen() {
   const nav = useNavigation<Nav>();
   const replaceFilters = useFilters(s => s.replace);
   const { syncing, syncNow } = useSession();
+  const allowed = useChangesAllowed();
   const instances = useDbQuery(listInstances);
   const names = useDbQuery(tenantNames);
   const [q, setQ] = useState('');
+  const refreshControl = usePullToRefresh();
 
   const summary = useMemo(() => (instances && names ? summarize(instances, names, cloudLabel) : undefined), [instances, names]);
 
@@ -79,12 +82,14 @@ export function HomeScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={[styles.screen, { backgroundColor: c.bg }]}>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" refreshControl={refreshControl}>
         <Text style={[styles.eyebrow, { color: c.primary }]}>Your Aura account</Text>
         <Text accessibilityRole="header" style={[styles.title, { color: c.text }]}>Find an instance</Text>
         <Text style={{ color: c.muted }}>
           {summary ? `${plural(summary.total, 'instance')} across ${plural(summary.tenants.length, 'tenant')}` : 'Reading the stored copy of your account…'}
         </Text>
+        <Button label="New instance" variant="secondary" disabled={!allowed} onPress={() => nav.navigate('Create')} />
+        {!allowed && <Text style={{ color: c.muted }}>Turn on "Allow changes" in the Account tab to create instances.</Text>}
         <TextInput
           accessibilityLabel="Search instances by name"
           autoCapitalize="none"

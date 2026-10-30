@@ -65,6 +65,8 @@ export interface OperationStore {
   loadSizeOptions(instance: StoredInstance): Promise<{ memory: string; storage: string }[]>;
   loadOffered(tenantId: string): Promise<OfferedConfiguration[]>;
   loadTenantName(tenantId: string): Promise<string | null>;
+  /** Whether the account has a Free instance that Aura still lists. Aura allows one. */
+  hasFreeInstance(): Promise<boolean>;
   /** Operations that hold the instance: confirmed or running. */
   holdingOperations(auraId: string): Promise<{ id: string; status: OperationStatus }[]>;
   createOperation(input: NewOperation): Promise<string>;

@@ -113,8 +113,8 @@ export function describeCreate(r: CreateRequest): Plan {
     { field: "region", label: "Region", before: "", after: r.regionName },
     { field: "tier", label: "Tier", before: "", after: tierName(r.type) },
     { field: "memory", label: "Memory", before: "", after: spaced(r.memory) },
-    { field: "storage", label: "Storage", before: "", after: spaced(r.storage) },
   ];
+  if (r.storage) items.push({ field: "storage", label: "Storage", before: "", after: spaced(r.storage) });
   if (r.vectorOptimized) items.push({ field: "vectorOptimized", label: "Vector optimized", before: "", after: "On" });
   if (r.graphAnalyticsPlugin) items.push({ field: "graphAnalyticsPlugin", label: "Graph analytics plugin", before: "", after: "On" });
   return {

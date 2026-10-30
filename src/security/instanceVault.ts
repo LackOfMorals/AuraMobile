@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import * as Keychain from 'react-native-keychain';
 import { db, schema } from '../db';
 import type { CredentialVault } from '../services/operations/types';
@@ -38,7 +38,14 @@ export const instanceVault: CredentialVault & { reveal(auraId: string): Promise<
         accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY_OR_DEVICE_PASSCODE,
         authenticationPrompt: { title: 'Show the instance password', cancel: 'Cancel' },
       });
-      return item === false ? null : { username: item.username, password: item.password };
+      if (item === false) {
+        return null;
+      }
+      await db
+        .update(schema.instance)
+        .set({ passwordRevealCount: sql`${schema.instance.passwordRevealCount} + 1` })
+        .where(eq(schema.instance.auraId, auraId));
+      return { username: item.username, password: item.password };
     } catch {
       return null;
     }

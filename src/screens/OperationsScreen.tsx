@@ -8,6 +8,7 @@ import { relativeTime } from '../lib/format';
 import { kindLabel, matchesOperationFilter, OperationFilter, operationView } from '../lib/operations';
 import type { RootStackParamList } from '../navigation/types';
 import { useDbQuery } from '../state/useDbQuery';
+import { usePullToRefresh } from '../state/usePullToRefresh';
 import { useColors } from '../theme/colors';
 import { StatusChip } from '../ui/StatusChip';
 import { EmptyState } from '../ui/parts';
@@ -25,6 +26,7 @@ export function OperationsScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const all = useDbQuery(listOperations);
   const [filter, setFilter] = useState<OperationFilter>('all');
+  const refreshControl = usePullToRefresh();
   const items = all?.filter(o => matchesOperationFilter(o.status, filter));
 
   return (
@@ -44,6 +46,7 @@ export function OperationsScreen() {
       </View>
       <FlatList
         contentContainerStyle={styles.list}
+        refreshControl={refreshControl}
         data={items ?? []}
         keyExtractor={o => o.id}
         ListEmptyComponent={

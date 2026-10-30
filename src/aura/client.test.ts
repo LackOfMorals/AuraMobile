@@ -125,6 +125,15 @@ describe("server errors", () => {
     expect(calls).toHaveLength(2);
   });
 
+  it("keeps extra detail from an error entry, and from an error body of an unknown shape", async () => {
+    const entry = setup([token(), { status: 400, body: { errors: [{ message: "request body contains validation errors", reason: "invalid", field: "storage", expected: ["16GB"] }] } }]);
+    const e1 = await entry.client.deleteInstance("i").catch((e) => e);
+    expect(e1.problems[0]).toMatchObject({ field: "storage", reason: "invalid", detail: '{"expected":["16GB"]}' });
+    const odd = setup([token(), { status: 400, body: { title: "Bad request", violations: [{ path: "memory" }] } }]);
+    const e2 = await odd.client.deleteInstance("i").catch((e) => e);
+    expect(e2.problems[0].detail).toContain("violations");
+  });
+
   it("reads Aura's own error message", async () => {
     const { client } = setup([token(), { status: 409, body: { errors: [{ message: "Instance is busy", reason: "conflict", field: "id" }] } }]);
     const error = await client.deleteInstance("i").catch((e) => e);

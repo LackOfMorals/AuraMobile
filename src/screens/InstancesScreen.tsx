@@ -9,6 +9,7 @@ import { plural } from '../lib/format';
 import type { RootStackParamList } from '../navigation/types';
 import { useFilters } from '../state/filtersStore';
 import { useDbQuery } from '../state/useDbQuery';
+import { usePullToRefresh } from '../state/usePullToRefresh';
 import { useColors } from '../theme/colors';
 import { Button } from '../ui';
 import { FilterSheet } from '../ui/FilterSheet';
@@ -23,6 +24,7 @@ export function InstancesScreen() {
   const instances = useDbQuery(listInstances);
   const names = useDbQuery(tenantNames);
   const [sheet, setSheet] = useState(false);
+  const refreshControl = usePullToRefresh();
 
   const results = useMemo(() => (instances ? sortInstances(instances.filter(i => matches(i, filters)), filters.sort) : undefined), [instances, filters]);
   const badge = activeCount(filters);
@@ -65,6 +67,7 @@ export function InstancesScreen() {
       {results && (
         <FlatList
           contentContainerStyle={styles.list}
+          refreshControl={refreshControl}
           data={results}
           keyExtractor={i => i.auraId}
           keyboardShouldPersistTaps="handled"
