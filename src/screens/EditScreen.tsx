@@ -14,6 +14,7 @@ import { useColors } from '../theme/colors';
 import { Banner, Button } from '../ui';
 import { Dropdown } from '../ui/Dropdown';
 import { EmptyState } from '../ui/parts';
+import { readingColumn } from '../theme/layout';
 
 /** Rename, resize, and the two switches. Only what changed is planned, and nothing is sent until the review is confirmed. */
 export function EditScreen({ route, navigation }: NativeStackScreenProps<RootStackParamList, 'Edit'>) {
@@ -126,7 +127,7 @@ export function EditScreen({ route, navigation }: NativeStackScreenProps<RootSta
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { padding: 16, gap: 10 },
+  content: { padding: 16, gap: 10, ...readingColumn },
   label: { fontSize: 17, fontWeight: '700', marginTop: 8 },
   input: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 17 },
   switchRow: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },

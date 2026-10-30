@@ -3,6 +3,7 @@ import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../ui/Text';
 import data from '../legal/licenses.json';
 import { useColors } from '../theme/colors';
+import { readingColumn } from '../theme/layout';
 
 type Entry = { name: string; version?: string; license: string; text?: string };
 
@@ -53,7 +54,7 @@ export function LicensesScreen() {
 }
 
 const styles = StyleSheet.create({
-  list: { padding: 16, gap: 10 },
+  list: { padding: 16, gap: 10, ...readingColumn },
   card: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 2 },
   name: { fontSize: 17, fontWeight: '600' },
   text: { marginTop: 8 },

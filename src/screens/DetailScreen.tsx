@@ -5,7 +5,7 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { activeOperationFor, getInstance, tenantNames } from '../db/queries';
 import { tierName } from '../lib/create';
-import { cloudLabel, formatDate, memoryAndStorage, relativeTime } from '../lib/format';
+import { cloudLabel, formatDate, relativeTime, size } from '../lib/format';
 import type { RootStackParamList } from '../navigation/types';
 import { UserError } from '../services/errors';
 import { operations, useChangesAllowed, useSession } from '../state/session';
@@ -20,6 +20,7 @@ import { TierStripe } from '../ui/TierStripe';
 import { PasswordField } from '../ui/PasswordField';
 import { StatusChip } from '../ui/StatusChip';
 import { EmptyState } from '../ui/parts';
+import { readingColumn } from '../theme/layout';
 
 const yesNo = (v: boolean | null) => (v === null ? null : v ? 'Yes' : 'No');
 
@@ -153,7 +154,8 @@ export function DetailScreen({ route, navigation }: NativeStackScreenProps<RootS
         <Fact label="Cloud" value={cloudLabel(i.cloudProvider)} />
         <Fact label="Region" value={i.region} />
         <Fact label="Tier" value={i.tier ? tierName(i.tier) : null} />
-        <Fact label="Memory and storage" value={memoryAndStorage(i.memory, i.storage)} />
+        <Fact label="Memory" value={size(i.memory) || null} />
+        <Fact label="Storage" value={size(i.storage) || null} />
         <Fact label="Vector optimised" value={yesNo(i.vectorOptimized)} />
         <Fact label="Graph analytics plugin" value={yesNo(i.graphAnalyticsPlugin)} />
         <Fact label="Secondaries" value={i.secondariesCount} />
@@ -177,7 +179,7 @@ export function DetailScreen({ route, navigation }: NativeStackScreenProps<RootS
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { padding: 16, gap: 14 },
+  content: { padding: 16, gap: 14, ...readingColumn },
   name: { fontSize: 28, fontWeight: '800' },
   actions: { gap: 10 },
   card: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 10 },

@@ -69,6 +69,8 @@ Run `node scripts/generate-licenses.mjs` after adding a dependency; a test fails
 
 ## Releasing
 
+`npm run screenshots` runs the app in the iOS simulators on several iPhone and iPad sizes, in light and dark, and at the largest text size, and saves a screenshot of each screen with a contact sheet. See `scripts/screenshots.mjs` for the options.
+
 See [docs/app-store.md](docs/app-store.md): listing text, review notes, privacy answers, screenshots and the upload steps.
 The app's version is `version` in `package.json`; the iOS and Android projects must match it (a test checks).
 

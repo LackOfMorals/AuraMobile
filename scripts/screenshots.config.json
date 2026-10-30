@@ -1,0 +1,31 @@
+{
+  "bundleId": "io.github.lackofmorals.jax",
+  "settleSeconds": 9,
+  "devices": {
+    "iphone-17e": "iPhone 17e",
+    "iphone-17": "iPhone 17",
+    "iphone-air": "iPhone Air",
+    "iphone-18-pro-max": "iPhone 18 Pro Max",
+    "ipad-mini": "iPad mini (A17 Pro)",
+    "ipad-pro-11": "iPad Pro 11-inch (M5)",
+    "ipad-pro-13": "iPad Pro 13-inch (M5)"
+  },
+  "screens": ["Home", "Instances", "Detail", "Create", "Edit", "Account", "Operations", "Licenses"],
+  "variants": {
+    "standard": {
+      "devices": ["iphone-17e", "iphone-17", "iphone-air", "iphone-18-pro-max", "ipad-mini", "ipad-pro-11", "ipad-pro-13"],
+      "appearance": "light",
+      "textSize": "large"
+    },
+    "dark": {
+      "devices": ["iphone-17e", "iphone-18-pro-max", "ipad-mini"],
+      "appearance": "dark",
+      "textSize": "large"
+    },
+    "large-text": {
+      "devices": ["iphone-17e", "iphone-18-pro-max", "ipad-mini"],
+      "appearance": "light",
+      "textSize": "accessibility-extra-extra-extra-large"
+    }
+  }
+}

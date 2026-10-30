@@ -14,6 +14,7 @@ import { useDbQuery } from '../state/useDbQuery';
 import { usePullToRefresh } from '../state/usePullToRefresh';
 import { useColors } from '../theme/colors';
 import { Banner, Button } from '../ui';
+import { readingColumn } from '../theme/layout';
 
 const account = async () => (await db.select().from(schema.account))[0];
 
@@ -81,7 +82,7 @@ export function AccountScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { padding: 16, gap: 14 },
+  content: { padding: 16, gap: 14, ...readingColumn },
   title: { fontSize: 28, fontWeight: '800' },
   card: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 4 },
   value: { fontSize: 17, fontWeight: '600', marginBottom: 8 },

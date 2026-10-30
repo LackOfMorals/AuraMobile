@@ -13,6 +13,7 @@ import { usePullToRefresh } from '../state/usePullToRefresh';
 import { useColors } from '../theme/colors';
 import { StatusChip } from '../ui/StatusChip';
 import { EmptyState } from '../ui/parts';
+import { readingColumn } from '../theme/layout';
 
 const FILTERS: { key: OperationFilter; label: string }[] = [
   { key: 'all', label: 'All' },
@@ -82,7 +83,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 28, fontWeight: '800', padding: 16, paddingBottom: 8 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16 },
   chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: 999, borderWidth: 1 },
-  list: { padding: 16, gap: 12 },
+  list: { padding: 16, gap: 12, ...readingColumn },
   card: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 6 },
   name: { fontSize: 17, fontWeight: '600' },
 });

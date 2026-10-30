@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useRef } from 'react';
 import { AppState, Pressable, StyleSheet, useColorScheme, View } from 'react-native';
 import { Text } from '../ui/Text';
+import { devArg } from '../dev/launchArgs';
 import { useLockStore } from '../state/lockStore';
 
 const RELOCK_AFTER_MS = 30_000;
@@ -18,9 +19,14 @@ export function LockGate({ children }: { children: ReactNode }) {
   const dark = useColorScheme() === 'dark';
   const leftAt = useRef<number | null>(null);
 
+  // Development only (see devArg): lets a screenshot run start without Face ID
+  const skipLock = devArg('JaxSkipLock') !== undefined;
+
   useEffect(() => {
-    tryUnlock();
-  }, [tryUnlock]);
+    if (!skipLock) {
+      tryUnlock();
+    }
+  }, [tryUnlock, skipLock]);
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', state => {
@@ -38,7 +44,7 @@ export function LockGate({ children }: { children: ReactNode }) {
     return () => sub.remove();
   }, [lock, tryUnlock]);
 
-  if (!locked) {
+  if (!locked || skipLock) {
     return <>{children}</>;
   }
 

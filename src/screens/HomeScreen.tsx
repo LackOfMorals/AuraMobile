@@ -18,6 +18,7 @@ import { useColors } from '../theme/colors';
 import { Button } from '../ui';
 import { InstanceCard } from '../ui/InstanceCard';
 import { EmptyState, Skeleton, TagButton } from '../ui/parts';
+import { readingColumn } from '../theme/layout';
 
 type Nav = BottomTabNavigationProp<TabParamList, 'Home'> & NativeStackNavigationProp<RootStackParamList>;
 
@@ -71,6 +72,7 @@ export function HomeScreen() {
   const instances = useDbQuery(listInstances);
   const names = useDbQuery(tenantNames);
   const [q, setQ] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const refreshControl = usePullToRefresh();
 
   const summary = useMemo(() => (instances && names ? summarize(instances, names, cloudLabel) : undefined), [instances, names]);
@@ -103,7 +105,8 @@ export function HomeScreen() {
           style={[styles.search, { color: c.text, borderColor: c.control, backgroundColor: c.card }]}
           value={q}
         />
-        {summary && (
+        {summary && <Button label={showFilters ? 'Hide tenant, cloud and tier filters' : 'Show tenant, cloud and tier filters'} variant="secondary" onPress={() => setShowFilters(v => !v)} />}
+        {summary && showFilters && (
           <>
             <TagGroup label="Tenant" tags={summary.tenants} onPick={v => browse({ tenants: [v] })} />
             <TagGroup label="Cloud" tags={summary.clouds} onPick={v => browse({ clouds: [v] })} />
@@ -136,7 +139,7 @@ export function HomeScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { padding: 16, gap: 14 },
+  content: { padding: 16, gap: 14, ...readingColumn },
   eyebrow: { fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6 },
   title: { fontSize: 32, fontWeight: '800' },
   search: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 17 },

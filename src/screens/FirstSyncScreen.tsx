@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSession } from '../state/session';
 import { useColors } from '../theme/colors';
 import { Banner, Button } from '../ui';
+import { readingColumn } from '../theme/layout';
 
 export function FirstSyncScreen() {
   const c = useColors();
@@ -39,6 +40,6 @@ export function FirstSyncScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { flex: 1, padding: 24, gap: 16, justifyContent: 'center' },
+  content: { flex: 1, padding: 24, gap: 16, justifyContent: 'center', ...readingColumn },
   title: { fontSize: 24, fontWeight: '700' },
 });

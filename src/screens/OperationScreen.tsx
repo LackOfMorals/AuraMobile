@@ -13,6 +13,7 @@ import { Banner, Button } from '../ui';
 import { Icon } from '../ui/Icon';
 import { StatusChip } from '../ui/StatusChip';
 import { EmptyState } from '../ui/parts';
+import { readingColumn } from '../theme/layout';
 
 type Loaded = NonNullable<Awaited<ReturnType<typeof getOperation>>>;
 
@@ -169,7 +170,7 @@ export function OperationScreen({ route, navigation }: NativeStackScreenProps<Ro
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   loading: { flex: 1 },
-  content: { padding: 16, gap: 14 },
+  content: { padding: 16, gap: 14, ...readingColumn },
   title: { fontSize: 26, fontWeight: '800' },
   card: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 10 },
   cardTitle: { fontSize: 18, fontWeight: '700' },

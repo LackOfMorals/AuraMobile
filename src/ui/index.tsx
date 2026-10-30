@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
   },
-  buttonText: { fontSize: 17, fontWeight: '600' },
+  buttonText: { fontSize: 17, fontWeight: '600', textAlign: 'center' },
   disabled: { opacity: 0.5 },
   banner: { borderWidth: 1, borderRadius: 12, padding: 12 },
   warning: { borderWidth: 2 },

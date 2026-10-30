@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSession } from '../state/session';
 import { useColors } from '../theme/colors';
 import { Banner, Button } from '../ui';
+import { readingColumn } from '../theme/layout';
 
 export function SetupScreen() {
   const c = useColors();
@@ -71,7 +72,7 @@ export function SetupScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { padding: 16, gap: 12 },
+  content: { padding: 16, gap: 12, ...readingColumn },
   title: { fontSize: 24, fontWeight: '700' },
   label: { fontSize: 14, fontWeight: '600', marginTop: 4 },
   input: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 17 },

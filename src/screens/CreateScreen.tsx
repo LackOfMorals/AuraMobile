@@ -18,6 +18,7 @@ import { Banner, Button } from '../ui';
 import { Dropdown } from '../ui/Dropdown';
 import { Option } from '../ui/FilterSheet';
 import { EmptyState } from '../ui/parts';
+import { readingColumn } from '../theme/layout';
 
 /**
  * The tier comes first, because it decides the rest. AuraDB Free fixes cloud, region and size, so choosing it
@@ -186,7 +187,7 @@ export function CreateScreen({ navigation }: NativeStackScreenProps<RootStackPar
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  content: { padding: 16, gap: 10 },
+  content: { padding: 16, gap: 10, ...readingColumn },
   title: { fontSize: 26, fontWeight: '800' },
   input: { minHeight: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, fontSize: 17 },
   switchRow: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

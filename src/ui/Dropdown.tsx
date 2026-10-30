@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   disabled: { opacity: 0.5 },
   value: { flex: 1, fontSize: 17 },
   scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
-  sheet: { maxHeight: '70%', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 24 },
+  sheet: { maxHeight: '70%', width: '100%', maxWidth: 560, alignSelf: 'center', borderTopLeftRadius: 20, borderTopRightRadius: 20, paddingBottom: 24 },
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, paddingBottom: 4 },
   title: { fontSize: 20, fontWeight: '700' },
   close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },

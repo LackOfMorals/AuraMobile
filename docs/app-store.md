@@ -90,7 +90,7 @@ Use **demo mode** (Account, Disconnect and clear data, Try the demo) so no real 
 5. The new-instance wizard on the tier step
 6. An operation in progress, showing the steps
 
-Take each with the side button and volume up together, then AirDrop them to your Mac. iPad screenshots are not needed: the app is iPhone only.
+Take each with the side button and volume up together, then AirDrop them to your Mac. The app also runs natively on iPad, so App Store Connect asks for **iPad screenshots** too: 13-inch iPad, 2064 x 2752 (portrait). `npm run screenshots` captures the iPad Pro 13-inch simulator at exactly that size (the `ipad-pro-13` device, `standard` variant), but its screens are the Debug app with the demo data, so use them as a check, and take the store set the same way you take the iPhone ones.
 
 ## 7. App Review information
 
@@ -137,6 +137,6 @@ Each upload needs a new build number: raise `CURRENT_PROJECT_VERSION` in the pro
 
 ## What is already done in the project
 
-App icon (placeholder, replaceable), launch screen, iPhone-only and portrait, privacy manifest, export-compliance flag, no unused permissions,
+App icon (placeholder, replaceable), launch screen, iPhone and iPad (all iPad orientations, as multitasking requires), phone portrait only, privacy manifest, export-compliance flag, no unused permissions,
 no Metro dependency in release builds, error screen, native app-switcher cover, open-source licence screen and `LICENSE`/`NOTICE` files, and a
 version that the User-Agent, iOS and Android all read from one place.

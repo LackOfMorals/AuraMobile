@@ -17,9 +17,11 @@ import { FilterSheet } from '../ui/FilterSheet';
 import { Icon } from '../ui/Icon';
 import { InstanceCard } from '../ui/InstanceCard';
 import { EmptyState, Skeleton } from '../ui/parts';
+import { listColumn, useColumns } from '../theme/layout';
 
 export function InstancesScreen() {
   const c = useColors();
+  const columns = useColumns();
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { filters, set, clear } = useFilters();
   const instances = useDbQuery(listInstances);
@@ -67,6 +69,9 @@ export function InstancesScreen() {
       )}
       {results && (
         <FlatList
+          key={columns}
+          numColumns={columns}
+          columnWrapperStyle={columns > 1 ? styles.columns : undefined}
           contentContainerStyle={styles.list}
           refreshControl={refreshControl}
           data={results}
@@ -79,7 +84,11 @@ export function InstancesScreen() {
               <Button label="Clear filters" variant="secondary" onPress={clear} />
             </EmptyState>
           }
-          renderItem={({ item }) => <InstanceCard instance={item} layout="row" onPress={() => nav.navigate('Detail', { auraId: item.auraId })} />}
+          renderItem={({ item }) => (
+            <View style={[styles.cell, { maxWidth: `${100 / columns}%` }]}>
+              <InstanceCard instance={item} layout="row" onPress={() => nav.navigate('Detail', { auraId: item.auraId })} />
+            </View>
+          )}
         />
       )}
 
@@ -104,6 +113,8 @@ const styles = StyleSheet.create({
   filterButton: { width: 44, height: 44, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   badge: { position: 'absolute', top: -6, right: -6, minWidth: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
   badgeText: { fontSize: 12, fontWeight: '700' },
-  list: { padding: 16, paddingTop: 8, gap: 12 },
+  list: { padding: 16, paddingTop: 8, gap: 12, ...listColumn },
+  columns: { gap: 12 },
+  cell: { flex: 1 },
   skeleton: { height: 96 },
 });
