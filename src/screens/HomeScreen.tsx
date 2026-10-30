@@ -118,6 +118,7 @@ export function HomeScreen() {
         )}
         {summary && (
           <>
+            <Row title="In progress" items={summary.inProgress} onSeeAll={() => browse({ statuses: ['IN_PROGRESS'] })} onOpen={open} />
             <Row title="Running" items={summary.running} onSeeAll={() => browse({ statuses: ['READY'] })} onOpen={open} />
           </>
         )}

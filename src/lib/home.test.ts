@@ -29,9 +29,14 @@ describe("summarize", () => {
     expect(summarize([inst("a", { tenantId: "unknown" })], names, cloudLabel).tenants[0]!.label).toBe("unknown");
   });
 
-  it("has no grouping for instances that are not running: they are found through the instance list", () => {
-    expect(Object.keys(s).sort()).toEqual(["clouds", "running", "tenants", "tiers", "total"]);
+  it("has no grouping for failed or stopped instances: they are found through the instance list", () => {
+    expect(Object.keys(s).sort()).toEqual(["clouds", "inProgress", "running", "tenants", "tiers", "total"]);
     expect(s.total).toBe(6); // failed, changing and stopped instances still count
+  });
+
+  it("lists instances that are being created or changed, so a new instance shows on Home", () => {
+    expect(s.inProgress.map((i) => i.name)).toEqual(["busy"]);
+    expect(s.running.some((i) => i.name === "busy")).toBe(false);
   });
 
   it("lists only ready instances as running, by name", () => {
@@ -39,6 +44,6 @@ describe("summarize", () => {
   });
 
   it("handles no instances", () => {
-    expect(summarize([], names, cloudLabel)).toEqual({ total: 0, tenants: [], clouds: [], tiers: [], running: [] });
+    expect(summarize([], names, cloudLabel)).toEqual({ total: 0, tenants: [], clouds: [], tiers: [], running: [], inProgress: [] });
   });
 });

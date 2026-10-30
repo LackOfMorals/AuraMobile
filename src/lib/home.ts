@@ -14,6 +14,8 @@ export interface HomeSummary<T extends HomeInstance = HomeInstance> {
   clouds: Tag[];
   tiers: Tag[];
   running: T[];
+  /** Being created, resized, paused or resumed: shown so a new instance is visible on Home straight away. */
+  inProgress: T[];
 }
 
 export type HomeInstance = Filterable & { createdAt?: string | null; memory?: string | null };
@@ -48,5 +50,6 @@ export function summarize<T extends HomeInstance>(instances: readonly T[], tenan
     clouds: tags(clouds, cloudLabel),
     tiers: tags(tiers, tierName),
     running: sortInstances(live.filter((i) => i.statusGroup === "READY"), "name"),
+    inProgress: sortInstances(live.filter((i) => i.statusGroup === "IN_PROGRESS"), "name"),
   };
 }
