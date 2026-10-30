@@ -8,9 +8,9 @@ decision only you can make. The rest is ready.
 1. **The name.** The app is called "Jue", which does not use Neo4j's mark. Keep "Neo4j" and "Aura" out of the name, subtitle and keywords
    (guideline 5.2). Describing what it does in the description is fine ("manage Neo4j Aura databases"), and the app says it is unofficial.
    Check that "Jue" is free in App Store Connect when you create the record, since names are unique across the store.
-2. **The version number.** The app is `0.1.0`. A store release is usually `1.0.0`. To change it, edit `version` in `package.json` and
+2. **The version number.** The first store release is `1.0.0`. To change it, edit `version` in `package.json` and
    `MARKETING_VERSION` (two places in `ios/AuraMobile.xcodeproj/project.pbxproj`) and `versionName` in `android/app/build.gradle`. A test fails
-   if they disagree.
+   if they disagree. Raise `CURRENT_PROJECT_VERSION` (the build number) for every upload.
 
 ## 1. Privacy policy and support page (done once the repository is public)
 
@@ -29,8 +29,13 @@ App Store Connect, Apps, **+ New App**:
 | Platform | iOS |
 | Name | Jue (see decision 1; must be available in App Store Connect) |
 | Primary language | English (UK) or English (US) |
-| Bundle ID | `io.github.lackofmorals.auramobile` (choose it from the list: it is registered by building with your team) |
+| Bundle ID | `io.github.lackofmorals.auramobile`. Register it first: developer.apple.com, Certificates, Identifiers & Profiles, Identifiers, +, App IDs, App, **Explicit**, with **no capabilities ticked** (the app uses none: see below). It then appears in this list. The development builds so far used a wildcard profile, so it is not registered yet. |
 | SKU | `auramobile` (any unique text) |
+
+**Capabilities: tick none.** The app is signed with no entitlements beyond the standard ones (checked on the built app), so every optional capability can stay off:
+iCloud (Save to Files uses the system save sheet, not an iCloud container of the app's own), Push Notifications, Associated Domains, App Groups, Sign in with Apple,
+Background Modes, Data Protection (the app sets file protection per file in code, and a device check showed `NSFileProtectionComplete` without it), and the rest.
+Face ID needs no capability, only the text in Info.plist. A capability you do not use only adds an entitlement for App Review to ask about. Capabilities can be added later; the bundle ID cannot be changed.
 
 ## 3. App information
 
@@ -74,7 +79,7 @@ App Store Connect, Apps, **+ New App**:
 > You need Aura API credentials (created in the Aura console) to connect your account.
 >
 > Jue is not affiliated with, or endorsed by, Neo4j. Neo4j and Aura are trademarks of Neo4j, Inc.
-> Jue falls under the same terms as Neo4j Labs projects (https://neo4j.com/labs/#disclaimer): it is experimental and provided without warranties or support.
+> Jue is a community project, provided as is, under the same terms as Neo4j Labs projects (https://neo4j.com/labs/#disclaimer).
 
 **Keywords (100 characters, comma-separated):** `graph,database,cloud,instance,admin,devops,manager,cypher,knowledge graph,dba`
 (Left out on purpose: the name "neo4j", because Apple may treat another company's mark in keywords as a problem. See decision 1.)

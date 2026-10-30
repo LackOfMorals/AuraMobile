@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import { version } from '../../package.json';
 import { APP_NAME } from '../appName';
 
-/** App name, mobile OS, then version, for example `Jue/ios/0.1.0`. The name is one word with no spaces, as a User-Agent product token must be. */
+/** App name, mobile OS, then version, for example `Jue/ios/1.0.0`. The name is one word with no spaces, as a User-Agent product token must be. */
 export const userAgentFor = (os: string, appVersion: string): string => `${APP_NAME}/${os}/${appVersion}`;
 
 /**

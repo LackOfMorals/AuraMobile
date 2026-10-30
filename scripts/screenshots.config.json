@@ -52,6 +52,14 @@
       ],
       "appearance": "light",
       "textSize": "accessibility-extra-extra-extra-large"
+    },
+    "store": {
+      "devices": [
+        "iphone-18-pro-max",
+        "ipad-pro-13"
+      ],
+      "appearance": "light",
+      "textSize": "large"
     }
   }
 }

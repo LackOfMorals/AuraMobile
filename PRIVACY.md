@@ -26,7 +26,7 @@ The app talks to one service only: **Aura's own API at `api.neo4j.io`**. It send
 
 - your client ID and secret, to obtain a short-lived access token;
 - requests to read your projects and instances, and, only when you confirm a change, to pause, resume, edit, create or delete an instance;
-- a `User-Agent` header naming the app, the operating system and the app version (for example `Jue/ios/0.1.0`).
+- a `User-Agent` header naming the app, the operating system and the app version (for example `Jue/ios/1.0.0`).
 
 Neo4j handles that data under its own terms and privacy policy. **Nothing is sent to the developer of Jue or to any other party.**
 The app contains no analytics, crash-reporting, advertising or other third-party services.

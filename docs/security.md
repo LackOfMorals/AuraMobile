@@ -94,7 +94,7 @@ recording anything else (`src/services/operations/run.ts`, `src/security/instanc
 - **HTTPS only.** App Transport Security is on with no exceptions (`NSAllowsArbitraryLoads` is off). In **Release builds** there is no
   local-network exception at all. Only Debug builds, for developers, add one so the development server can be reached.
 - **What it sends:** the client ID and secret to get a token; the token on every request; requests to read your projects and instances; and,
-  only after you confirm a change, requests to pause, resume, edit, create or delete. Every request carries a `User-Agent` such as `Jue/ios/0.1.0`.
+  only after you confirm a change, requests to pause, resume, edit, create or delete. Every request carries a `User-Agent` such as `Jue/ios/1.0.0`.
 - **No certificate pinning.** The app trusts the system's certificate store, as most apps do. Pinning is a possible future hardening, with the
   cost that it must be updated when Aura's certificates change.
 - **Sync and polling** happen only while the app is open. There is no background fetch and no push notification.
