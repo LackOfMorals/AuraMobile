@@ -5,7 +5,7 @@ import { Text } from '../ui/Text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { version } from '../../package.json';
 import { db, schema } from '../db';
-import { LABS_TERMS_URL, PRIVACY_URL } from '../legal/links';
+import { LABS_TERMS_URL, PRIVACY_URL, SUPPORT_URL } from '../legal/links';
 import type { RootStackParamList } from '../navigation/types';
 import { lastSyncedAt } from '../db/queries';
 import { relativeTime } from '../lib/format';
@@ -72,7 +72,8 @@ export function AccountScreen() {
           <Text style={{ color: c.muted, marginBottom: 8 }}>Allows you to manage your Neo4j Aura infrastructure</Text>
           <Text style={{ color: c.muted, marginBottom: 8 }}>{'Jax falls under the same terms as Neo4j Labs projects: it is experimental, and provided without warranties, support or service commitments, and is not intended for production use.'}</Text>
           <Button label="Neo4j Labs terms" variant="secondary" onPress={() => Linking.openURL(LABS_TERMS_URL)} />
-          {PRIVACY_URL !== '' && <Button label="Privacy policy" variant="secondary" onPress={() => Linking.openURL(PRIVACY_URL)} />}
+          <Button label="Privacy policy" variant="secondary" onPress={() => Linking.openURL(PRIVACY_URL)} />
+          <Button label="Support and feedback" variant="secondary" onPress={() => Linking.openURL(SUPPORT_URL)} />
           <Button label="Open source licences" variant="secondary" onPress={() => nav.navigate('Licenses')} />
         </View>
       </ScrollView>

@@ -12,11 +12,13 @@ decision only you can make. The rest is ready.
    `MARKETING_VERSION` (two places in `ios/AuraMobile.xcodeproj/project.pbxproj`) and `versionName` in `android/app/build.gradle`. A test fails
    if they disagree.
 
-## 1. Host the privacy policy and a support page (YOU)
+## 1. Privacy policy and support page (done once the repository is public)
 
-- Publish `PRIVACY.md` at a public address (a GitHub Pages site or a public repository file both work) and add your contact email at the bottom.
-- Set that address as `PRIVACY_URL` in `src/legal/links.ts`, so the app links to it from Account.
-- You also need a **support URL**: a page or repository issues page where people can reach you.
+- The privacy policy is `PRIVACY.md` in this repository. Once the repository is public it is served at
+  `https://github.com/LackOfMorals/AuraMobile/blob/main/PRIVACY.md`. Use that as the **Privacy Policy URL** in App Store Connect.
+- The **Support URL** is the repository's Issues page: `https://github.com/LackOfMorals/AuraMobile/issues`.
+- Both addresses are in `src/legal/links.ts`, so the app links to the policy from Account. If the repository is renamed, update them before the next release.
+- The contact in the policy is GitHub Issues, so no personal email address is published.
 
 ## 2. Create the app (YOU)
 

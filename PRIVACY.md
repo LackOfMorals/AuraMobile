@@ -55,4 +55,5 @@ If this changes, the new version will be published at the same address with a ne
 
 ## Contact
 
-<your contact email>
+Questions or concerns: open an issue at <https://github.com/LackOfMorals/AuraMobile/issues>. Issues are public, so please do not include credentials,
+passwords or anything else private in one.
