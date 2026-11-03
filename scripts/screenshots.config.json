@@ -8,7 +8,8 @@
     "iphone-18-pro-max": "iPhone 18 Pro Max",
     "ipad-mini": "iPad mini (A17 Pro)",
     "ipad-pro-11": "iPad Pro 11-inch (M5)",
-    "ipad-pro-13": "iPad Pro 13-inch (M5)"
+    "ipad-pro-13": "iPad Pro 13-inch (M5)",
+    "iphone-18-pro": "iPhone 18 Pro"
   },
   "screens": [
     "Home",
@@ -57,6 +58,13 @@
       "devices": [
         "iphone-18-pro-max",
         "ipad-pro-13"
+      ],
+      "appearance": "light",
+      "textSize": "large"
+    },
+    "store-6.3": {
+      "devices": [
+        "iphone-18-pro"
       ],
       "appearance": "light",
       "textSize": "large"

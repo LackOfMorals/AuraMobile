@@ -41,7 +41,7 @@ Face ID needs no capability, only the text in Info.plist. A capability you do no
 
 | Field | Value |
 | --- | --- |
-| Subtitle (30 characters) | Manage Neo4j Aura databases |
+| Subtitle (30 characters) | Manage cloud graph databases (28 characters; no Neo4j or Aura, as decision 1 says) |
 | Category | Developer Tools (secondary: Utilities) |
 | Content rights | Does not contain third-party content you do not have rights to. It does include open-source code, credited in the app. |
 | Age rating | Answer "None" to every question: 4+ |
@@ -120,7 +120,7 @@ Take each with the side button and volume up together, then AirDrop them to your
 > The app asks for Face ID or the device passcode when it opens. A device passcode must be set, because the app keeps API credentials in the
 > Keychain behind it.
 >
-> This is an independent app, not affiliated with Neo4j. [If you have Neo4j's permission to use the name, say so here.]
+> This is an independent app, not affiliated with Neo4j. It names Neo4j Aura only to say which service it works with; its own name does not use Neo4j's marks.
 
 ## 8. Build and upload (YOU, or ask me once you agree to the account change below)
 
